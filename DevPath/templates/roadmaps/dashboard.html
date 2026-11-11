@@ -1,0 +1,869 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - DevPath{% endblock %}
+{% block bn_profile %}active{% endblock %}
+
+{% block content %}
+<style>
+  /* Force full width with highest specificity */
+  body .site-main {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 2rem 1rem 5rem !important;
+    margin: 0 !important;
+  }
+  
+  body .container {
+    max-width: 100% !important;
+    padding: 0 1rem !important;
+    width: 100% !important;
+  }
+  
+  body .main-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  body .content-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* ── Container Setup ── */
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    margin-top: 100px;
+  }
+
+  /* ── Full Width Header ── */
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    width: 100%;
+    position: relative;
+    animation: slideInFromTop 0.8s ease-out;
+    padding: 0 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--border);
+    height: 80px;
+  }
+
+  /* ── Enhanced Animations ── */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes slideInFromTop {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(139,92,246,0.4); }
+    50% { box-shadow: 0 0 40px rgba(139,92,246,0.6); }
+  }
+
+  @keyframes celebrate {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  /* ── Enhanced Header ── */
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    width: 100%;
+    position: relative;
+    animation: slideInFromTop 0.8s ease-out;
+    padding: 0 0;
+  }
+  
+  .dash-header .header-left {
+    flex: 0 0 auto;
+    min-width: 300px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dash-header .header-right {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dash-header::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: radial-gradient(circle at 20% 50%, rgba(139,92,246,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  .dash-header .header-left {
+    flex: 0 0 auto;
+    min-width: 300px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dash-header .header-right {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dash-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: .5rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--purple-400) 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .dash-header p {
+    color: var(--text-dim);
+    font-size: 1.2rem;
+    font-weight: 500;
+    animation: slideInFromBottom 0.8s ease-out 0.2s both;
+  }
+
+  .dash-header .btn {
+    font-size: 1.1rem;
+    padding: 16px 32px;
+    font-weight: 700;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+    color: #fff;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all .3s ease;
+    box-shadow: 0 8px 24px var(--purple-glow);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.8s ease-out 0.4s both;
+  }
+
+  .dash-header .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .dash-header .btn:hover::before {
+    left: 100%;
+  }
+
+  .dash-header .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px var(--purple-glow);
+  }
+
+  /* ── Enhanced Stats row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    animation: slideInFromBottom 0.8s ease-out 0.3s both;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(139,92,246,0.05) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all .3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--purple-600), var(--purple-400), #818cf8);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s ease;
+  }
+
+  .stat-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(139,92,246,0.2);
+    border-color: var(--purple-400);
+  }
+
+  .stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: var(--purple-400);
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(139,92,246,0.5);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .stat-lbl {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+
+  .stat-progress {
+    margin-top: 0.8rem;
+  }
+
+  .stat-progress-bar {
+    height: 10px;
+    background: var(--bg-raised);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .stat-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--purple-600), var(--purple-400), #818cf8);
+    border-radius: 99px;
+    transition: width 0.6s ease;
+    position: relative;
+    box-shadow: 0 0 10px rgba(139,92,246,0.5);
+  }
+
+  .stat-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .stat-progress-text {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+
+  /* ── Enhanced Section title ── */
+  .section-label {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    margin-top: 2.5rem;
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: fadeIn 0.8s ease-out both;
+  }
+
+  .section-label::before {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* ── Enhanced Next step card ── */
+  .next-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(139,92,246,0.08) 100%);
+    border: 1px solid rgba(139,92,246,0.45);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 0 1px rgba(139,92,246,0.12), 0 8px 32px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    transition: all .3s ease;
+    animation: slideInFromBottom 0.8s ease-out 0.4s both;
+  }
+
+  .next-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--purple-600), var(--purple-400), #818cf8);
+  }
+
+  .next-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(139,92,246,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .next-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 1px rgba(139,92,246,0.2), 0 12px 40px rgba(139,92,246,0.15);
+  }
+
+  .next-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .next-eyebrow {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--purple-400);
+    margin-bottom: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 4px 12px;
+    background: rgba(139,92,246,0.1);
+    border-radius: 20px;
+    border: 1px solid rgba(139,92,246,0.2);
+  }
+
+  .next-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--purple-400) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .next-desc {
+    color: var(--text-dim);
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+
+  .resource-links {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .resource-link-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, var(--bg-raised) 0%, rgba(139,92,246,0.05) 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all .3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .resource-link-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(139,92,246,0.1), transparent);
+    transition: left 0.5s;
+  }
+
+  .resource-link-item:hover::before {
+    left: 100%;
+  }
+
+  .resource-link-item:hover {
+    border-color: var(--purple-500);
+    color: var(--purple-400);
+    transform: translateX(5px);
+    box-shadow: 0 4px 20px rgba(139,92,246,0.1);
+  }
+
+  .resource-link-item .r-arrow {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: .8rem;
+  }
+
+  /* ── Enhanced Achievements Section ── */
+  .completed-roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    animation: slideInFromBottom 0.8s ease-out 0.6s both;
+  }
+
+  .completed-role-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(16,185,129,0.05) 100%);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px;
+    padding: 1.8rem 2rem;
+    transition: all .3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .completed-role-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981, #059669, #34d399);
+  }
+
+  .completed-role-item::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(16,185,129,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .completed-role-item:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(16,185,129,0.2);
+    border-color: rgba(16,185,129,0.5);
+  }
+
+  .completed-role-icon {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: 0 8px 24px rgba(16,185,129,0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  .completed-role-icon::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2));
+    animation: shimmer 3s infinite;
+  }
+
+  .completed-role-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .completed-role-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  .completed-role-desc {
+    color: var(--text-dim);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .completed-role-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 16px rgba(16,185,129,0.3);
+    position: relative;
+    z-index: 1;
+    animation: celebrate 0.6s ease-out;
+  }
+
+  .no-completed-roles {
+    color: var(--muted);
+    font-size: 0.9rem;
+    padding: 2rem;
+    text-align: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  /* ── Enhanced Complete Banner ── */
+  .complete-banner {
+    background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.05) 100%);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(16,185,129,0.15);
+    animation: slideInFromBottom 0.8s ease-out 0.4s both;
+  }
+
+  .complete-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981, #059669, #34d399);
+  }
+
+  .complete-banner::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(16,185,129,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .complete-banner .c-emoji { 
+    font-size: 3rem; 
+    margin-bottom: 1rem;
+    animation: celebrate 0.6s ease-out;
+  }
+  
+  .complete-banner h2 { 
+    font-size: 1.5rem; 
+    font-weight: 800; 
+    color: #34d399; 
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #34d399, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .complete-banner p { 
+    color: var(--text-dim); 
+    font-size: 1.1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .complete-banner .btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all .3s ease;
+    box-shadow: 0 8px 24px rgba(16,185,129,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .complete-banner .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .complete-banner .btn:hover::before {
+    left: 100%;
+  }
+
+  .complete-banner .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(16,185,129,0.4);
+  }
+
+  /* ── Responsive Design ── */
+  @media (max-width: 768px) {
+    .stats-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .dash-header h1 {
+      font-size: 2rem;
+    }
+    
+    .next-card {
+      padding: 2rem;
+    }
+    
+    .completed-role-item {
+      padding: 1.5rem;
+      gap: 1rem;
+    }
+    
+    .completed-role-icon {
+      width: 50px;
+      height: 50px;
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<!-- Full Width Header -->
+<div class="dash-header animate-in">
+  <div class="header-left">
+    <h1>Dashboard</h1>
+    <p>Your progress for <strong>{{ role.name }}</strong></p>
+  </div>
+  <div class="header-right">
+    <a class="btn" href="{% url 'roadmap' %}">Go to roadmap →</a>
+  </div>
+</div>
+
+<!-- Main Content Container -->
+<div class="dashboard-container">
+<!-- Enhanced Stats with Progress -->
+<div class="stats-row animate-in delay-1">
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-val">{{ user_stats.total_points }}</div>
+      <div class="stat-lbl">Points</div>
+    </div>
+    <div class="stat-progress">
+      <div class="stat-progress-bar">
+        <div class="stat-progress-fill" style="width: {{ user_stats.total_points }}%"></div>
+      </div>
+      <div class="stat-progress-text">{{ user_stats.total_points }} / 600 pts</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-val">{{ user_stats.current_streak }}</div>
+      <div class="stat-lbl">Day Streak</div>
+    </div>
+  </div>
+</div>
+
+<!-- Next step -->
+{% if next_step %}
+  <div class="section-label animate-in delay-2">Next up</div>
+  <div class="next-card animate-in delay-2">
+    <div class="next-card-top">
+      <div>
+        <div class="next-eyebrow">{{ next_step.step.level }}</div>
+        <div class="next-title">{{ next_step.step.title }}</div>
+        {% if next_step.step.description %}
+          <div class="next-desc">{{ next_step.step.description }}</div>
+        {% endif %}
+      </div>
+      <span class="badge badge-purple">Unlocked</span>
+    </div>
+
+    {% if next_step.required_resources %}
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.5rem;">
+        Start with
+      </div>
+      <div class="resource-links">
+        {% for sr in next_step.required_resources %}
+          <a class="resource-link-item" href="{{ sr.resource.url }}" target="_blank" rel="noopener">
+            {{ sr.resource.title }}
+            <span class="r-arrow">→</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% else %}
+  <div class="complete-banner animate-in delay-2">
+    <div class="c-emoji">Path Complete!</div>
+    <h2>Path complete!</h2>
+    <p>You've finished everything for this role. Impressive work!</p>
+    <div style="margin-top: 1.5rem;">
+      <a href="{% url 'role_select' %}" class="btn btn-primary">Choose New Role →</a>
+    </div>
+  </div>
+{% endif %}
+
+<!-- Achievements (Completed Roles) -->
+<div class="section-label animate-in delay-3">Achievements</div>
+<div class="completed-roles-list animate-in delay-3">
+  {% for completed_role in completed_roles %}
+    <div class="completed-role-item">
+      <div class="completed-role-icon">
+        {% if 'Full Stack' in completed_role.role.name %}
+          FS
+        {% elif 'Frontend Developer' in completed_role.role.name %}
+          FE
+        {% elif 'Backend Developer' in completed_role.role.name %}
+          BE
+        {% elif 'Database Administrator' in completed_role.role.name %}
+          DB
+        {% elif 'Data Analyst' in completed_role.role.name %}
+          DA
+        {% elif 'Data Scientist' in completed_role.role.name %}
+          DS
+        {% elif 'DevOps Engineer' in completed_role.role.name %}
+          DO
+        {% elif 'Cybersecurity Analyst' in completed_role.role.name %}
+          CS
+        {% elif 'UI/UX Designer' in completed_role.role.name or 'UX/UI Designer' in completed_role.role.name %}
+          UX
+        {% elif 'Game Developer' in completed_role.role.name %}
+          GD
+        {% elif 'Technical Support' in completed_role.role.name %}
+          TS
+        {% elif 'System Administrator' in completed_role.role.name %}
+          SA
+        {% elif 'Automation Tester' in completed_role.role.name or 'QA Engineer' in completed_role.role.name %}
+          QA
+        {% elif 'Network Engineer' in completed_role.role.name %}
+          NE
+        {% elif 'IT Support Specialist' in completed_role.role.name %}
+          IT
+        {% else %}
+          DEV
+        {% endif %}
+      </div>
+      <div class="completed-role-body">
+        <div class="completed-role-title">{{ completed_role.role.name }}</div>
+        <div class="completed-role-desc">Completed on {{ completed_role.completed_at|date:"M d, Y" }}</div>
+      </div>
+      <div class="completed-role-badge">Completed</div>
+    </div>
+  {% empty %}
+    <div class="no-completed-roles">
+      <div style="font-size: 2rem; margin-bottom: 1rem;">No Achievements</div>
+      <div style="font-weight: 600; margin-bottom: 0.5rem;">No completed roles yet</div>
+      <div>Complete your current role to see it here as an achievement!</div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+</div><!-- /dashboard-container -->

@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Assessments - {{ step.title }} - DevPath{% endblock %}
+{% block bn_learn %}active{% endblock %}
+
+{% block content %}
+<style>
+  .assessment-header {
+    margin-bottom: 2rem;
+  }
+  
+  .assessment-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  
+  .assessment-header p {
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+  
+  .assessment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .assessment-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  
+  .assessment-card:hover {
+    border-color: var(--purple-500);
+    box-shadow: 0 4px 20px rgba(139,92,246,0.1);
+  }
+  
+  .assessment-card.completed {
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.02);
+  }
+  
+  .assessment-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .assessment-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: .3rem;
+  }
+  
+  .assessment-type {
+    display: inline-block;
+    padding: .25rem .75rem;
+    background: var(--bg-raised);
+    border-radius: var(--radius-sm);
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+  }
+  
+  .assessment-description {
+    color: var(--text-dim);
+    font-size: .9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  
+  .assessment-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+  
+  .assessment-actions {
+    margin-top: 1rem;
+  }
+  
+  .btn-assessment {
+    padding: .75rem 1.5rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    transition: all .2s;
+  }
+  
+  .btn-assessment.primary {
+    background: var(--purple-600);
+    color: white;
+    border: none;
+  }
+  
+  .btn-assessment.primary:hover {
+    background: var(--purple-700);
+  }
+  
+  .btn-assessment.secondary {
+    background: var(--bg-raised);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  
+  .btn-assessment.secondary:hover {
+    border-color: var(--purple-500);
+    color: var(--purple-400);
+  }
+  
+  .badge-success {
+    background: rgba(16,185,129,0.1);
+    color: #34d399;
+    border: 1px solid rgba(16,185,129,0.3);
+  }
+</style>
+
+<div class="assessment-header">
+  <h1>{{ step.title }} - Assessments</h1>
+  <p>Test your understanding and earn badges and certificates!</p>
+</div>
+
+<div class="assessment-list">
+  {% for assessment in assessments %}
+    <div class="assessment-card {% if assessment.id in completed_assessment_ids %}completed{% endif %}">
+      <div class="assessment-top">
+        <div>
+          <div class="assessment-title">{{ assessment.title }}</div>
+          <span class="assessment-type">{{ assessment.get_assessment_type_display }}</span>
+        </div>
+        {% if assessment.id in completed_assessment_ids %}
+          <span class="badge badge-success">✓ Completed</span>
+        {% endif %}
+      </div>
+      
+      <div class="assessment-description">{{ assessment.description }}</div>
+      
+      <div class="assessment-meta">
+        <span>🎯 Passing Score: {{ assessment.passing_score }}%</span>
+        {% if assessment.time_limit_minutes %}
+          <span>⏱️ Time Limit: {{ assessment.time_limit_minutes }} min</span>
+        {% endif %}
+        {% if assessment.badge_name %}
+          <span>🏅 Badge: {{ assessment.badge_name }}</span>
+        {% endif %}
+        {% if assessment.certificate_title %}
+          <span>📜 Certificate Available</span>
+        {% endif %}
+      </div>
+      
+      <div class="assessment-actions">
+        {% if assessment.id in completed_assessment_ids %}
+          {% for ua in user_assessments %}
+            {% if ua.assessment.id == assessment.id %}
+              <a href="{% url 'assessment_result' assessment.id %}" class="btn-assessment secondary">
+                <span>📊</span>
+                View Results ({{ ua.score }}%)
+              </a>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <a href="{% url 'take_assessment' assessment.id %}" class="btn-assessment primary">
+            <span>📝</span>
+            Start Assessment
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <div style="text-align: center; padding: 3rem; color: var(--muted);">
+      <div style="font-size: 2rem; margin-bottom: 1rem;">📚</div>
+      <p>No assessments available for this step yet.</p>
+    </div>
+  {% endfor %}
+</div>
+
+<div style="margin-top: 2rem; text-align: center;">
+  <a href="{% url 'roadmap' %}" class="btn btn-outline">← Back to Roadmap</a>
+</div>
+
+{% endblock %}

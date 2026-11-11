@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Logged Out - DevPath{% endblock %}
+
+{% block content %}
+<div class="auth-wrap animate-in">
+  <div class="auth-top">
+    <div class="auth-logo">👋</div>
+    <h1>You've been logged out</h1>
+    <p>Thanks for learning with DevPath! Come back anytime to continue your progress.</p>
+  </div>
+
+  <div class="auth-card">
+    <div class="streak-reminder">
+      <span class="s-icon">🎯</span>
+      See you next time! Your progress is saved and ready when you return.
+    </div>
+
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="{% url 'login' %}" class="btn-login">Login Again</a>
+    </div>
+
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="{% url 'home' %}" class="btn btn-outline">Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

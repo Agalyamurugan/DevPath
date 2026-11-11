@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Results - {{ assessment.title }} - DevPath{% endblock %}
+{% block bn_learn %}active{% endblock %}
+
+{% block content %}
+<style>
+  .result-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .result-header {
+    margin-bottom: 2rem;
+  }
+  
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    position: relative;
+  }
+  
+  .score-circle.passed {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 8px 32px rgba(16,185,129,0.3);
+  }
+  
+  .score-circle.failed {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 8px 32px rgba(239,68,68,0.3);
+  }
+  
+  .result-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  
+  .result-title.passed {
+    color: #10b981;
+  }
+  
+  .result-title.failed {
+    color: #ef4444;
+  }
+  
+  .result-message {
+    color: var(--text-dim);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .rewards-section {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .reward-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    min-width: 200px;
+  }
+  
+  .reward-card.earned {
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.05);
+  }
+  
+  .reward-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .reward-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  
+  .reward-description {
+    color: var(--text-dim);
+    font-size: .9rem;
+    line-height: 1.5;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-item {
+    background: var(--bg-raised);
+    padding: 1rem;
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--purple-400);
+    margin-bottom: .25rem;
+  }
+  
+  .stat-label {
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+  }
+</style>
+
+<div class="result-container">
+  <div class="result-header">
+    <div class="score-circle {% if user_assessment.passed %}passed{% else %}failed{% endif %}">
+      {{ user_assessment.score }}%
+    </div>
+    
+    <h1 class="result-title {% if user_assessment.passed %}passed{% else %}failed{% endif %}">
+      {% if user_assessment.passed %}
+        🎉 Congratulations! You Passed!
+      {% else %}
+        📚 Not Quite There Yet
+      {% endif %}
+    </h1>
+    
+    <p class="result-message">
+      {% if user_assessment.passed %}
+        You've successfully completed the {{ assessment.title }} assessment!
+      {% else %}
+        You scored {{ user_assessment.score }}% but needed {{ assessment.passing_score }}% to pass. Review the material and try again.
+      {% endif %}
+    </p>
+  </div>
+  
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-value">{{ user_assessment.score }}%</div>
+      <div class="stat-label">Your Score</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">{{ assessment.passing_score }}%</div>
+      <div class="stat-label">Passing Score</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">{{ assessment.questions.count }}</div>
+      <div class="stat-label">Questions</div>
+    </div>
+  </div>
+  
+  {% if badge or certificate %}
+    <div class="rewards-section">
+      {% if badge %}
+        <div class="reward-card earned">
+          <div class="reward-icon">🏅</div>
+          <div class="reward-title">{{ badge.name }}</div>
+          <div class="reward-description">{{ badge.description }}</div>
+          <div style="margin-top: 1rem; font-size: .75rem; color: var(--muted);">
+            Earned on {{ badge.earned_at|date:"M d, Y" }}
+          </div>
+        </div>
+      {% endif %}
+      
+      {% if certificate %}
+        <div class="reward-card earned">
+          <div class="reward-icon">📜</div>
+          <div class="reward-title">{{ certificate.title }}</div>
+          <div class="reward-description">{{ certificate.description }}</div>
+          <div style="margin-top: 1rem; font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--purple-400);">
+            ID: {{ certificate.certificate_id }}
+          </div>
+          <div style="margin-top: 1rem; font-size: .75rem; color: var(--muted);">
+            Issued on {{ certificate.issued_date|date:"M d, Y" }}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+  
+  <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+    <a href="{% url 'assessment_list' assessment.step.id %}" class="btn btn-outline">
+      Back to Assessments
+    </a>
+    {% if not user_assessment.passed %}
+      <a href="{% url 'take_assessment' assessment.id %}" class="btn btn-primary">
+        Try Again
+      </a>
+    {% endif %}
+    <a href="{% url 'badges_and_certificates' %}" class="btn btn-secondary">
+      View All Badges
+    </a>
+  </div>
+</div>
+
+{% endblock %}

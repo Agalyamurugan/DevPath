@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Results - {{ level }} {{ role }}{% endblock %}
+
+{% block content %}
+<style>
+  .results-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .results-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .results-header h1 {
+    color: var(--purple-600);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .score-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .score-circle {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+  }
+
+  .score-passed {
+    background: linear-gradient(135deg, var(--green-500), var(--green-600));
+  }
+
+  .score-failed {
+    background: linear-gradient(135deg, var(--red-500), var(--red-600));
+  }
+
+  .score-details {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 2rem;
+  }
+
+  .score-stat {
+    text-align: center;
+  }
+
+  .score-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--purple-600);
+  }
+
+  .score-label {
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+  }
+
+  .results-message {
+    font-size: 1.2rem;
+    color: var(--text);
+    margin-bottom: 2rem;
+  }
+
+  .passed-message {
+    color: var(--green-600);
+    font-weight: 600;
+  }
+
+  .failed-message {
+    color: var(--red-600);
+    font-weight: 600;
+  }
+
+  .results-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .action-btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .retry-btn {
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+    color: white;
+  }
+
+  .retry-btn:hover {
+    background: linear-gradient(135deg, var(--purple-700), var(--purple-800));
+    transform: translateY(-2px);
+  }
+
+  .back-btn {
+    background: var(--gray-100);
+    color: var(--text);
+  }
+
+  .back-btn:hover {
+    background: var(--gray-200);
+  }
+
+  .results-details {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-top: 2rem;
+  }
+
+  .results-details h2 {
+    color: var(--purple-600);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .answer-explanations-section {
+    background: var(--bg-card);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-top: 2rem;
+    border: 3px solid #8b5cf6;
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+  }
+
+  .answer-explanations-section h2 {
+    color: #a78bfa;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 1.8rem;
+  }
+
+  .notification-bar {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+
+  .no-data-message {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .explanation-intro {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+
+  .question-result {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #10b981;
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .question-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .question-text {
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .options-review {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .option-review {
+    padding: 0.8rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(34, 197, 94, 0.15);
+    border: 2px solid #22c55e;
+  }
+
+  .option-review.correct-answer {
+    background: rgba(34, 197, 94, 0.15);
+    border: 2px solid #22c55e;
+  }
+
+  .correct-label {
+    margin-left: auto;
+    background: #22c55e;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+
+  .option-icon {
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+
+  .explanation {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+    margin-top: 1rem;
+    color: var(--text);
+  }
+
+  .explanation-title {
+    font-weight: 600;
+    color: #60a5fa;
+    margin-bottom: 0.5rem;
+  }
+
+  .difficulty-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .difficulty-beginner {
+    background: var(--green-100);
+    color: var(--green-600);
+  }
+
+  .difficulty-intermediate {
+    background: var(--yellow-100);
+    color: var(--yellow-600);
+  }
+
+  .difficulty-advanced {
+    background: var(--red-100);
+    color: var(--red-600);
+  }
+</style>
+
+<div class="results-container">
+  <div class="results-header">
+    <div class="difficulty-badge difficulty-{{ level|lower }}">
+      {{ level }}
+    </div>
+    <h1>{{ role }} Quiz Results</h1>
+    <p>{{ level|title }} Level Assessment</p>
+  </div>
+
+  <div class="score-card">
+    <div class="score-circle {% if passed %}score-passed{% else %}score-failed{% endif %}">
+      {{ score_percentage|floatformat:0 }}%
+    </div>
+    
+    <div class="score-details">
+      <div class="score-stat">
+        <div class="score-number">{{ correct_count }}</div>
+        <div class="score-label">Correct</div>
+      </div>
+      <div class="score-stat">
+        <div class="score-number">{{ total_questions - correct_count }}</div>
+        <div class="score-label">Incorrect</div>
+      </div>
+      <div class="score-stat">
+        <div class="score-number">{{ total_questions }}</div>
+        <div class="score-label">Total Questions</div>
+      </div>
+    </div>
+
+    <div class="results-message">
+      {% if passed %}
+        <div class="passed-message">🎉 Congratulations! You passed the {{ level|lower }} quiz!</div>
+        <div>You've successfully demonstrated your {{ level|lower }} knowledge in {{ role }}.</div>
+      {% else %}
+        <div class="failed-message">📚 You didn't pass this time, but keep learning!</div>
+        <div>You need 60% to pass. Review the explanations below and try again.</div>
+      {% endif %}
+    </div>
+
+    <div class="results-actions">
+      <a href="{% url 'take_practice_quiz' role level %}" class="action-btn retry-btn">
+        🔄 Retry Quiz
+      </a>
+      <a href="{% url 'practice_quiz_hub' %}" class="action-btn back-btn">
+        ← Back to Quiz Hub
+      </a>
+    </div>
+  </div>
+
+  <!-- Answer Explanations Section -->
+  <div class="answer-explanations-section">
+    <h2>🔑 ANSWER KEY - All Questions & Explanations</h2>
+    <div class="explanation-intro">
+      <strong>📚 Complete Answer Key Below:</strong>
+      Review these explanations to learn from your mistakes and improve your knowledge.
+    </div>
+    
+    {% if results %}
+      <div class="notification-bar">
+        📝 Showing {{ results|length }} questions with correct answers and detailed explanations
+      </div>
+    {% else %}
+      <div class="no-data-message">
+        ⚠️ No results data available. Please contact support.
+      </div>
+    {% endif %}
+    
+    {% for result in results %}
+    <div class="question-result">
+      <div class="question-header">
+        <div class="question-text">Question {{ forloop.counter }}: {{ result.question }}</div>
+      </div>
+
+      <div class="options-review">
+        {% for option in result.options %}
+        <div class="option-review {% if forloop.counter0 == result.correct_answer %}correct-answer{% endif %}">
+          <span class="option-icon">
+            {% if forloop.counter0 == result.correct_answer %}
+              ✓
+            {% else %}
+              ○
+            {% endif %}
+          </span>
+          <span>{{ option }}</span>
+          {% if forloop.counter0 == result.correct_answer %}
+            <span class="correct-label">CORRECT</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="explanation">
+        <div class="explanation-title">📖 Explanation:</div>
+        <div>{{ result.explanation }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

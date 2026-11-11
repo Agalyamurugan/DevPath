@@ -1,0 +1,678 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ role.name }} Roadmap - DevPath{% endblock %}
+{% block bn_learn %}active{% endblock %}
+
+{% block content %}
+<style>
+  /* Force full width with highest specificity */
+  body .site-main {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 2rem 1rem 5rem !important;
+    margin: 0 !important;
+  }
+  
+  body .container {
+    max-width: 100% !important;
+    padding: 0 1rem !important;
+    width: 100% !important;
+  }
+  
+  body .main-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  body .content-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* ── Container Setup ── */
+  .roadmap-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* ── Header ── */
+  .roadmap-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    width: 100%;
+  }
+
+  .roadmap-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: .2rem;
+  }
+
+  .roadmap-header p {
+    color: var(--text-dim);
+    font-size: 1rem;
+  }
+
+  /* circular % ring */
+  .pct-ring {
+    flex-shrink: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--purple-400);
+    background: conic-gradient(
+      var(--purple-500) calc({{ percent }} * 1%),
+      var(--bg-raised) 0deg
+    );
+    position: relative;
+    box-shadow: 0 0 30px rgba(139,92,246,0.3);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .pct-ring::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    background: var(--bg-deep);
+    border-radius: 50%;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  .pct-ring span { 
+    position: relative; 
+    z-index: 1;
+    text-shadow: 0 0 10px rgba(139,92,246,0.8);
+  }
+
+  /* progress bar */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    width: 100%;
+  }
+
+  .progress-row .progress-track { flex: 1; height: 10px; }
+
+  .progress-row .steps-label {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Node path layout ── */
+  .node-path {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* level label between nodes */
+  .level-label {
+    width: 100%;
+    padding: 1.25rem 0 .5rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: var(--muted);
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+  }
+
+  .level-label::before,
+  .level-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* connector between nodes */
+  .node-connector {
+    width: 3px;
+    height: 32px;
+    border-radius: 99px;
+    background: var(--border);
+  }
+
+  .node-connector.done { background: var(--purple-500); }
+
+  /* row that holds icon + card */
+  .node-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  /* alternate card left/right */
+  .node-row.even { flex-direction: row-reverse; }
+
+  /* node icon button */
+  .node-icon {
+    flex-shrink: 0;
+    margin-top: 1.25rem;
+    width: 60px; height: 60px;
+    border-radius: 18px;
+    border: 2px solid var(--border);
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-raised) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    transition: all .3s ease;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .node-icon:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+
+  .node-icon.done {
+    background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-500) 100%);
+    border-color: var(--purple-400);
+    box-shadow: 0 0 30px var(--purple-glow), 0 4px 12px rgba(139,92,246,0.3);
+    color: #fff;
+    font-size: 1.2rem;
+    animation: celebrate 0.6s ease-out;
+  }
+
+  @keyframes celebrate {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  .node-icon.active {
+    background: linear-gradient(135deg, var(--bg-raised) 0%, rgba(139,92,246,0.2) 100%);
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 6px rgba(139,92,246,0.2), 0 0 20px var(--purple-glow);
+    animation: pulse-glow 2s ease-in-out infinite, float 3s ease-in-out infinite;
+    color: var(--purple-400);
+  }
+
+  .node-icon.locked {
+    opacity: .4;
+    filter: grayscale(1);
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-raised) 100%);
+  }
+
+  /* card */
+  .node-card {
+    flex: 1;
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(139,92,246,0.05) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem 2rem;
+    margin: .75rem 0;
+    transition: all .3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .node-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(139,92,246,0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+
+  .node-card:hover::before {
+    transform: translateX(100%);
+  }
+
+  .node-card.active {
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 1px rgba(139,92,246,0.2), 0 8px 32px rgba(139,92,246,0.2);
+    background: linear-gradient(135deg, rgba(139,92,246,0.1) 0%, var(--bg-card) 100%);
+  }
+
+  .node-card.done { 
+    opacity: .7;
+    background: linear-gradient(135deg, rgba(16,185,129,0.05) 0%, var(--bg-card) 100%);
+    border-color: rgba(16,185,129,0.2);
+  }
+
+  .node-card.locked { 
+    opacity: .4;
+    filter: grayscale(0.5);
+  }
+
+  .node-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .5rem;
+  }
+
+  .node-card-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: .2rem;
+  }
+
+  .node-card-desc {
+    color: var(--text-dim);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .locked-msg {
+    margin-top: .75rem;
+    font-size: .8rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  /* ── Resource section inside active card ── */
+  .resources-section {
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .resources-heading {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: .65rem;
+  }
+
+  .resource-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .resource-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .8rem 1rem;
+    transition: border-color .2s;
+  }
+
+  .resource-item:hover { border-color: rgba(139,92,246,0.3); }
+
+  .resource-item.r-done {
+    opacity: .6;
+    border-color: rgba(16,185,129,0.2);
+  }
+
+  .resource-info { flex: 1; min-width: 0; }
+
+  .resource-title {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: .2rem;
+  }
+
+  .resource-meta {
+    font-size: .9rem;
+    color: var(--muted);
+  }
+
+  .resource-meta a {
+    color: var(--purple-400);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .resource-meta a:hover { text-decoration: underline; }
+
+  .btn-mark {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    font-size: .9rem;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+
+  .btn-mark.todo {
+    background: rgba(16,185,129,0.15);
+    color: #34d399;
+    border: 1px solid rgba(16,185,129,0.3);
+  }
+
+  .btn-mark.todo:hover {
+    background: rgba(16,185,129,0.25);
+  }
+
+  .btn-mark.done-btn {
+    background: var(--bg-card);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    cursor: default;
+  }
+
+  /* ── Certifications section ── */
+  .certifications-section {
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .certifications-heading {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: .65rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .certification-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .certification-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .certification-item:hover {
+    border-color: rgba(139,92,246,0.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .certification-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .certification-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .2rem;
+    color: var(--text);
+  }
+
+  .certification-provider {
+    font-size: .9rem;
+    color: var(--purple-400);
+    font-weight: 600;
+    margin-bottom: .2rem;
+  }
+
+  .certification-desc {
+    font-size: .9rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: .4rem;
+  }
+
+  .certification-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  .certification-meta span {
+    background: var(--bg-card);
+    padding: .2rem .4rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  .certification-price {
+    font-weight: 600;
+  }
+
+  .certification-price.free {
+    color: #10b981;
+  }
+
+  .certification-price.paid {
+    color: #f59e0b;
+  }
+
+  .certification-link {
+    flex-shrink: 0;
+    margin-top: .2rem;
+  }
+
+  .certification-link a {
+    display: inline-block;
+    padding: .5rem 1rem;
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--purple-400);
+    text-decoration: none;
+    border: 1px solid var(--purple-400);
+    border-radius: var(--radius-sm);
+    transition: all .2s;
+  }
+
+  .certification-link a:hover {
+    background: var(--purple-400);
+    color: white;
+  }
+
+</style>
+
+<div class="roadmap-container">
+  <!-- Header -->
+  <div class="roadmap-header animate-in">
+    <div>
+      <h1>{{ role.name }}</h1>
+      <p>Complete required resources to unlock the next step.</p>
+    </div>
+    <div class="pct-ring">
+      <span>{{ percent }}%</span>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-row animate-in delay-1">
+    <div class="progress-track">
+      <div class="progress-fill" style="width: {{ percent }}%"></div>
+    </div>
+    <div class="steps-label">{{ completed_steps }}/{{ total_steps }}</div>
+  </div>
+
+  <!-- Node path -->
+  <div class="node-path animate-in delay-2">
+    {% for p in progress %}
+
+      <!-- level divider -->
+      <div class="level-label">{{ p.step.level }}</div>
+
+      <!-- connector line (skip first) -->
+      {% if not forloop.first %}
+        <div class="node-connector {% if p.completed %}done{% endif %}"></div>
+      {% endif %}
+
+      <!-- node row: even rows flip direction -->
+      <div class="node-row {% if forloop.counter|divisibleby:2 %}even{% endif %}">
+
+        <!-- icon -->
+        <div class="node-icon {% if p.completed %}done{% elif p.unlocked %}active{% else %}locked{% endif %}">
+          {% if p.completed %}✓{% elif p.unlocked %}▶{% else %}🔒{% endif %}
+        </div>
+
+        <!-- card -->
+        <div class="node-card {% if p.completed %}done{% elif p.unlocked %}active{% else %}locked{% endif %}">
+
+          <div class="node-card-top">
+            <div>
+              <div class="node-card-title">{{ p.step.title }}</div>
+              {% if p.step.description %}
+                <div class="node-card-desc">{{ p.step.description }}</div>
+              {% endif %}
+            </div>
+
+            {% if p.completed %}
+              <span class="badge badge-success">✓ Done</span>
+            {% elif p.unlocked %}
+              <span class="badge badge-purple">▶ Active</span>
+            {% else %}
+              <span class="badge badge-muted">🔒 Locked</span>
+            {% endif %}
+          </div>
+
+          <!-- resources shown only when step is active -->
+          {% if p.unlocked and not p.completed %}
+            <div class="resources-section">
+              <div class="resources-heading">Required resources</div>
+              <div class="resource-list">
+                {% for sr in p.required_resources %}
+                  <div class="resource-item {% if sr.completed %}r-done{% endif %}">
+                    <div class="resource-info">
+                      <div class="resource-title">
+                        {{ sr.resource.title }}
+                        {% if sr.completed %}
+                          <span class="badge badge-success">✓ Done</span>
+                        {% endif %}
+                      </div>
+                      <div class="resource-meta">
+                        {{ sr.resource.get_resource_type_display }}
+                        {% if sr.resource.estimated_minutes %}
+                          &middot; ~{{ sr.resource.estimated_minutes }} min
+                        {% endif %}
+                        &middot; <a href="{{ sr.resource.url }}" target="_blank" rel="noopener">Open link ↗</a>
+                      </div>
+                    </div>
+
+                    <form method="post" action="{% url 'complete_resource' sr.resource.id %}">
+                      {% csrf_token %}
+                      {% if sr.completed %}
+                        <button class="btn-mark done-btn" type="button" disabled>Completed</button>
+                      {% else %}
+                        <button class="btn-mark todo" type="submit">Mark done</button>
+                      {% endif %}
+                    </form>
+                  </div>
+                {% empty %}
+                  <div style="color:var(--muted);font-size:.82rem;">No resources for this step.</div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- locked message -->
+          {% if not p.unlocked %}
+            <div class="locked-msg">
+              <span>🔒</span> Complete the previous step to unlock this section.
+            </div>
+          {% endif %}
+
+        </div><!-- /node-card -->
+      </div><!-- /node-row -->
+
+    {% endfor %}
+  </div><!-- /node-path -->
+
+  {% if certifications %}
+    <div class="level-label">🎓 Professional Certifications</div>
+    <div class="node-row">
+      <div class="node-icon" style="background: linear-gradient(135deg, var(--purple-600), var(--purple-400)); border-color: var(--purple-400); color: white; font-size: 1.1rem;">
+        🎓
+      </div>
+      <div class="node-card" style="border-color: var(--purple-400); box-shadow: 0 0 0 1px rgba(139,92,246,0.2), 0 8px 32px rgba(0,0,0,0.3);">
+        <div class="node-card-top">
+          <div>
+            <div class="node-card-title">Professional Certifications</div>
+            <div class="node-card-desc">Enhance your career with industry-recognized certifications that validate your expertise.</div>
+          </div>
+          <span class="badge badge-purple" style="background: var(--purple-600);">🎓 Recommended</span>
+        </div>
+        
+        <div class="certifications-section">
+          <div class="certifications-heading">
+            <span>🎓</span>
+            <span>Industry Certifications</span>
+          </div>
+          <div class="certification-list">
+            {% for cert in certifications %}
+              <div class="certification-item">
+                <div class="certification-info">
+                  <div class="certification-title">{{ cert.title }}</div>
+                  <div class="certification-provider">{{ cert.get_platform_display }} - {{ cert.provider }}</div>
+                  <div class="certification-desc">{{ cert.description }}</div>
+                  <div class="certification-meta">
+                    <span>{{ cert.difficulty_level }}</span>
+                    <span>{{ cert.duration }}</span>
+                    {% if cert.rating %}
+                      <span>⭐ {{ cert.rating }}</span>
+                    {% endif %}
+                    <span class="certification-price {% if cert.is_paid %}paid{% else %}free{% endif %}">
+                      {% if cert.is_paid %}💰 {{ cert.price }}{% else %}🆓 Free{% endif %}
+                    </span>
+                  </div>
+                  {% if cert.prerequisites %}
+                    <div style="font-size: .72rem; color: var(--muted); margin-top: .3rem;">
+                      <strong>Prerequisites:</strong> {{ cert.prerequisites }}
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="certification-link">
+                  <a href="{{ cert.url }}" target="_blank" rel="noopener">
+                    View Certification →
+                  </a>
+                </div>
+              </div>
+            {% empty %}
+              <div style="color:var(--muted);font-size:.82rem;">No certifications available for this role yet.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div><!-- /roadmap-container -->
+
+{% endblock %}

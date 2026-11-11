@@ -1,0 +1,654 @@
+0{% extends 'base.html' %}
+
+{% block title %}Choose Role - DevPath{% endblock %}
+
+{% block content %}
+<style>
+  /* ── Header ── */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+  }
+
+  .page-header h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    margin-bottom: .5rem;
+    background: linear-gradient(135deg, var(--text), var(--purple-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-header p {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  /* ── Enhanced Roles Grid ── */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+    width: 100%;
+    max-width: none;
+  }
+
+  /* hidden radio */
+  .role-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* enhanced role card */
+  .role-label {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, var(--bg-card), rgba(139,92,246,0.02));
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    position: relative;
+    transition: all .4s ease;
+    height: 100%;
+    min-height: 280px;
+    user-select: none;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  .role-label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--purple-600), var(--purple-400), var(--purple-600));
+    transform: translateX(-100%);
+    transition: transform .4s ease;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .role-label:hover::before {
+    transform: translateX(0);
+  }
+
+  .role-label:hover {
+    border-color: rgba(139,92,246,0.6);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(139,92,246,0.2);
+    background: linear-gradient(135deg, var(--bg-card), rgba(139,92,246,0.08));
+  }
+
+  /* selected state */
+  .role-label.selected {
+    border-color: var(--purple-500);
+    background: linear-gradient(135deg, rgba(139,92,246,0.08), var(--bg-card));
+    box-shadow: 0 0 0 2px rgba(139,92,246,0.3), 0 12px 32px rgba(139,92,246,0.25);
+  }
+
+  .role-label.selected::before {
+    transform: translateX(0);
+  }
+
+  /* check indicator */
+  .role-check {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg-raised);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .4s ease;
+    font-size: .8rem;
+    color: transparent;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .role-label.selected .role-check {
+    background: var(--purple-600);
+    border-color: var(--purple-400);
+    color: #fff;
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(139,92,246,0.4);
+  }
+
+  /* current path badge */
+  .current-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.1));
+    border: 1px solid rgba(245,158,11,0.4);
+    color: #fcd34d;
+    border-radius: 25px;
+    padding: 6px 16px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    align-self: flex-start;
+    animation: float 3s ease-in-out infinite;
+    box-shadow: 0 4px 12px rgba(245,158,11,0.2);
+  }
+
+  /* role icons */
+  .role-icons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .icon-stack {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-400));
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: 'JetBrains Mono', monospace;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(139,92,246,0.3);
+    transition: all .4s ease;
+  }
+
+  .icon-stack:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(139,92,246,0.4);
+  }
+
+  .role-name {
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    padding-right: 2rem;
+    background: linear-gradient(135deg, var(--text), var(--purple-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .role-summary {
+    color: var(--text-dim);
+    font-size: .9rem;
+    line-height: 1.5;
+    flex: 1;
+    text-align: center;
+    margin-bottom: 1.2rem;
+  }
+
+  /* enhanced tech tags */
+  .role-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .tech-tag {
+    background: linear-gradient(135deg, var(--bg-raised), rgba(139,92,246,0.15));
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: .7rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--purple-400);
+    transition: all .3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .tech-tag:hover {
+    background: rgba(139,92,246,0.2);
+    transform: scale(1.08);
+    border-color: rgba(139,92,246,0.5);
+    box-shadow: 0 4px 8px rgba(139,92,246,0.2);
+  }
+
+  /* ── Submit bar ── */
+  .submit-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+
+  .submit-note {
+    font-size: .9rem;
+    color: var(--muted);
+  }
+
+  .btn-start {
+    padding: 16px 48px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+    color: #fff;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 8px 24px var(--purple-glow);
+    transition: all .3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-start::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left .5s ease;
+  }
+
+  .btn-start:hover::before {
+    left: 100%;
+  }
+
+  .btn-start:hover {
+    background: linear-gradient(135deg, var(--purple-500), var(--purple-400));
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px var(--purple-glow);
+  }
+
+  /* ── Completed Roles Section ── */
+  .completed-section {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .completed-section h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .completed-section p {
+    color: var(--text-dim);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .completed-roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .completed-role-card {
+    background: linear-gradient(135deg, var(--bg-card), rgba(16,185,129,0.05));
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    opacity: 0.9;
+    transition: transform .3s ease, box-shadow .3s ease;
+  }
+
+  .completed-role-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16,185,129,0.2);
+  }
+
+  .completed-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 25px;
+    font-size: .75rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.4);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── Animations ── */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* ── Responsive Design ── */
+  @media (max-width: 1400px) {
+    .roles-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.8rem;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .roles-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .roles-grid {
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+    }
+
+    .role-label {
+      padding: 1.5rem;
+    }
+
+    .icon-stack {
+      width: 56px;
+      height: 56px;
+      font-size: 1rem;
+    }
+
+    .role-name {
+      font-size: 1.1rem;
+    }
+
+    .role-summary {
+      font-size: .85rem;
+    }
+
+    .tech-tag {
+      font-size: .65rem;
+      padding: 3px 10px;
+    }
+
+    .btn-start {
+      padding: 14px 32px;
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<!-- Enhanced Page header -->
+<div class="page-header animate-in">
+  <div>
+    <h1>Select Your Career Path</h1>
+    <p>Choose from 15+ tech career paths with structured learning roadmaps. Each path is designed to take you from beginner to advanced level.</p>
+  </div>
+  <a class="btn btn-ghost" href="{% url 'dashboard' %}">Dashboard →</a>
+</div>
+
+<form method="post" action="{% url 'role_select' %}">
+  {% csrf_token %}
+
+  <div class="roles-grid animate-in delay-1">
+    {% for role in roles %}
+      <div>
+        <!-- hidden radio -->
+        <input
+          class="role-radio"
+          type="radio"
+          name="role_id"
+          id="role_{{ role.id }}"
+          value="{{ role.id }}"
+          {% if role.id == current_role_id %}checked{% endif %}
+          required
+        />
+
+        <!-- enhanced visible card -->
+        <label
+          class="role-label {% if role.id == current_role_id %}selected{% endif %}"
+          for="role_{{ role.id }}"
+          id="label_{{ role.id }}"
+        >
+          <!-- check indicator -->
+          <div class="role-check">Selected</div>
+
+          <!-- current path badge -->
+          {% if role.id == current_role_id %}
+            <div class="current-pill">Current path</div>
+          {% endif %}
+
+          <!-- role icon -->
+          <div class="role-icons">
+            {% if 'Full Stack' in role.name %}
+              <div class="icon-stack">FS</div>
+            {% elif 'Junior Software Developer' in role.name %}
+              <div class="icon-stack">JS</div>
+            {% elif 'Web Developer' in role.name %}
+              <div class="icon-stack">WD</div>
+            {% elif 'Frontend Developer' in role.name %}
+              <div class="icon-stack">FE</div>
+            {% elif 'Backend Developer' in role.name %}
+              <div class="icon-stack">BE</div>
+            {% elif 'Database Administrator' in role.name %}
+              <div class="icon-stack">DB</div>
+            {% elif 'Data Analyst' in role.name %}
+              <div class="icon-stack">DA</div>
+            {% elif 'Data Scientist' in role.name %}
+              <div class="icon-stack">DS</div>
+            {% elif 'DevOps Engineer' in role.name %}
+              <div class="icon-stack">DO</div>
+            {% elif 'Cybersecurity Analyst' in role.name %}
+              <div class="icon-stack">CS</div>
+            {% elif 'UI/UX Designer' in role.name or 'UX/UI Designer' in role.name %}
+              <div class="icon-stack">UX</div>
+            {% elif 'Game Developer' in role.name %}
+              <div class="icon-stack">GD</div>
+            {% elif 'Technical Support' in role.name %}
+              <div class="icon-stack">TS</div>
+            {% elif 'System Administrator' in role.name %}
+              <div class="icon-stack">SA</div>
+            {% elif 'Automation Tester' in role.name or 'QA Engineer' in role.name %}
+              <div class="icon-stack">QA</div>
+            {% elif 'Network Engineer' in role.name %}
+              <div class="icon-stack">NE</div>
+            {% elif 'IT Support Specialist' in role.name %}
+              <div class="icon-stack">IT</div>
+            {% else %}
+              <div class="icon-stack">DEV</div>
+            {% endif %}
+          </div>
+
+          <div class="role-name">{{ role.name }}</div>
+
+          {% if role.summary %}
+            <div class="role-summary">{{ role.summary }}</div>
+          {% endif %}
+
+          <!-- enhanced tech tags -->
+          <div class="role-tags">
+            {% if 'Full Stack' in role.name %}
+              <span class="tech-tag">HTML/CSS</span>
+              <span class="tech-tag">JavaScript</span>
+              <span class="tech-tag">React</span>
+              <span class="tech-tag">Node.js</span>
+              <span class="tech-tag">Databases</span>
+            {% elif 'Frontend Developer' in role.name %}
+              <span class="tech-tag">HTML/CSS</span>
+              <span class="tech-tag">JavaScript</span>
+              <span class="tech-tag">React</span>
+              <span class="tech-tag">UI/UX</span>
+              <span class="tech-tag">Responsive Design</span>
+            {% elif 'Backend Developer' in role.name %}
+              <span class="tech-tag">JavaScript</span>
+              <span class="tech-tag">Node.js</span>
+              <span class="tech-tag">Python</span>
+              <span class="tech-tag">Databases</span>
+              <span class="tech-tag">API Development</span>
+            {% elif 'Python Developer' in role.name %}
+              <span class="tech-tag">Python</span>
+              <span class="tech-tag">Django</span>
+              <span class="tech-tag">Flask</span>
+              <span class="tech-tag">Data Analysis</span>
+              <span class="tech-tag">Automation</span>
+            {% elif 'Database Administrator' in role.name %}
+              <span class="tech-tag">SQL</span>
+              <span class="tech-tag">Database Design</span>
+              <span class="tech-tag">Data Security</span>
+              <span class="tech-tag">Performance Tuning</span>
+              <span class="tech-tag">Backup Systems</span>
+            {% elif 'Data Analyst' in role.name %}
+              <span class="tech-tag">Excel</span>
+              <span class="tech-tag">SQL</span>
+              <span class="tech-tag">Python</span>
+              <span class="tech-tag">Statistics</span>
+              <span class="tech-tag">Data Visualization</span>
+            {% elif 'Data Scientist' in role.name %}
+              <span class="tech-tag">Python</span>
+              <span class="tech-tag">Machine Learning</span>
+              <span class="tech-tag">Statistics</span>
+              <span class="tech-tag">Data Analysis</span>
+              <span class="tech-tag">Algorithms</span>
+            {% elif 'DevOps Engineer' in role.name %}
+              <span class="tech-tag">Cloud Services</span>
+              <span class="tech-tag">Automation</span>
+              <span class="tech-tag">Linux</span>
+              <span class="tech-tag">Docker</span>
+              <span class="tech-tag">CI/CD</span>
+            {% elif 'Cybersecurity Analyst' in role.name %}
+              <span class="tech-tag">Network Security</span>
+              <span class="tech-tag">Risk Assessment</span>
+              <span class="tech-tag">Security Tools</span>
+              <span class="tech-tag">Incident Response</span>
+              <span class="tech-tag">Compliance</span>
+            {% elif 'UI/UX Designer' in role.name or 'UX/UI Designer' in role.name %}
+              <span class="tech-tag">User Research</span>
+              <span class="tech-tag">Wireframing</span>
+              <span class="tech-tag">Prototyping</span>
+              <span class="tech-tag">Design Tools</span>
+              <span class="tech-tag">Usability Testing</span>
+            {% elif 'Game Developer' in role.name %}
+              <span class="tech-tag">Game Engines</span>
+              <span class="tech-tag">C++/C#</span>
+              <span class="tech-tag">Graphics Programming</span>
+              <span class="tech-tag">Game Design</span>
+              <span class="tech-tag">Physics Simulation</span>
+            {% elif 'Technical Support' in role.name %}
+              <span class="tech-tag">Troubleshooting</span>
+              <span class="tech-tag">Customer Service</span>
+              <span class="tech-tag">Technical Knowledge</span>
+              <span class="tech-tag">Communication</span>
+              <span class="tech-tag">Problem Solving</span>
+            {% elif 'System Administrator' in role.name %}
+              <span class="tech-tag">Linux/Windows</span>
+              <span class="tech-tag">Networking</span>
+              <span class="tech-tag">System Management</span>
+              <span class="tech-tag">Security</span>
+              <span class="tech-tag">Troubleshooting</span>
+            {% elif 'Automation Tester' in role.name or 'QA Engineer' in role.name %}
+              <span class="tech-tag">Testing Methods</span>
+              <span class="tech-tag">Bug Tracking</span>
+              <span class="tech-tag">Test Automation</span>
+              <span class="tech-tag">Quality Standards</span>
+              <span class="tech-tag">Documentation</span>
+            {% elif 'Network Engineer' in role.name %}
+              <span class="tech-tag">Network Protocols</span>
+              <span class="tech-tag">Routing/Switching</span>
+              <span class="tech-tag">Network Security</span>
+              <span class="tech-tag">Troubleshooting</span>
+              <span class="tech-tag">Network Design</span>
+            {% elif 'IT Support Specialist' in role.name %}
+              <span class="tech-tag">Hardware Support</span>
+              <span class="tech-tag">Software Support</span>
+              <span class="tech-tag">Customer Service</span>
+              <span class="tech-tag">Problem Solving</span>
+              <span class="tech-tag">Technical Skills</span>
+            {% else %}
+              <span class="tech-tag">HTML/CSS</span>
+              <span class="tech-tag">JavaScript</span>
+              <span class="tech-tag">React</span>
+              <span class="tech-tag">Node.js</span>
+              <span class="tech-tag">Databases</span>
+            {% endif %}
+          </div>
+
+        </label>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Completed Roles Section -->
+  {% if completed_roles %}
+    <div class="completed-section animate-in delay-2">
+      <h2>Completed Roles</h2>
+      <p>You've already mastered these career paths.</p>
+      
+      <div class="completed-roles-grid">
+        {% for role in completed_roles %}
+          <div class="completed-role-card">
+            <div class="completed-badge">Completed</div>
+            <div class="role-name">{{ role.name }}</div>
+            {% if role.summary %}
+              <div class="role-summary">{{ role.summary }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Enhanced Submit -->
+  <div class="submit-bar animate-in delay-3">
+    <button class="btn-start" type="submit">
+      <span>Start Learning Path</span>
+      <span>→</span>
+    </button>
+    <span class="submit-note">Your previous progress will be saved if you switch paths.</span>
+  </div>
+
+</form>
+
+<script>
+  // Sync visual selected state when radio changes
+  document.querySelectorAll('.role-radio').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      document.querySelectorAll('.role-label').forEach(function(l) {
+        l.classList.remove('selected');
+      });
+      document.getElementById('label_' + radio.value).classList.add('selected');
+    });
+  });
+
+  // Form submission validation
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const selectedRole = document.querySelector('input[name="role_id"]:checked');
+    if (!selectedRole) {
+      e.preventDefault();
+      alert('Please select a role before continuing.');
+      return false;
+    }
+    console.log('Submitting role:', selectedRole.value);
+  });
+</script>
+
+{% endblock %}

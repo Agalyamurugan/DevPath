@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - DevPath{% endblock %}
+
+{% block content %}
+<style>
+  .auth-wrap {
+    max-width: 440px;
+    margin: 3rem auto;
+  }
+
+  .auth-top {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: var(--purple-600);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 28px var(--purple-glow);
+  }
+
+  .auth-top h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: .3rem;
+  }
+
+  .auth-top p {
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+
+  .auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+  }
+
+  /* Style Django's form.as_p output */
+  .auth-card p {
+    margin-bottom: 1.2rem;
+  }
+
+  .auth-card label {
+    display: block;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 6px;
+  }
+
+  .auth-card input[type="text"],
+  .auth-card input[type="email"],
+  .auth-card input[type="password"] {
+    width: 100%;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: .9rem;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .auth-card input:focus {
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.18);
+  }
+
+  /* Django's helptext */
+  .auth-card .helptext,
+  .auth-card span.helptext {
+    display: block;
+    font-size: .74rem;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+
+  /* Django's error list */
+  .auth-card .errorlist {
+    list-style: none;
+    padding: 0; margin: 0;
+    margin-top: 5px;
+  }
+
+  .auth-card .errorlist li {
+    color: #f87171;
+    font-size: .78rem;
+  }
+
+  .btn-register {
+    width: 100%;
+    justify-content: center;
+    padding: 13px;
+    font-size: .95rem;
+    margin-top: .5rem;
+    border-radius: var(--radius-sm);
+    background: var(--purple-600);
+    color: #fff;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--purple-glow);
+    transition: background .2s, transform .15s, box-shadow .2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .btn-register:hover {
+    background: var(--purple-500);
+    transform: translateY(-1px);
+    box-shadow: 0 0 32px var(--purple-glow);
+  }
+
+  .btn-register:active { transform: none; }
+
+  .auth-divider {
+    display: flex; align-items: center; gap: .75rem;
+    margin: 1.5rem 0;
+    color: var(--muted); font-size: .75rem;
+  }
+
+  .auth-divider::before,
+  .auth-divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  .auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: .85rem;
+    color: var(--text-dim);
+  }
+
+  .auth-footer a {
+    color: var(--purple-400);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .auth-footer a:hover { text-decoration: underline; }
+
+  .perks {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .perk {
+    display: flex; align-items: center; gap: .6rem;
+    font-size: .82rem; color: var(--text-dim);
+  }
+
+  .perk-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: rgba(139,92,246,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; flex-shrink: 0;
+  }
+</style>
+
+<div class="auth-wrap animate-in">
+
+  <div class="auth-top">
+    <div class="auth-logo">🚀</div>
+    <h1>Create your account</h1>
+    <p>Then you can save your roadmap progress.</p>
+  </div>
+
+  <div class="auth-card">
+
+    <div class="perks">
+      <div class="perk">
+        <div class="perk-icon">✓</div>
+        Track progress across career paths
+      </div>
+      <div class="perk">
+        <div class="perk-icon">🏅</div>
+        Earn achievements and XP
+      </div>
+      <div class="perk">
+        <div class="perk-icon">🔓</div>
+        Unlock steps as you complete resources
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn-register" type="submit">
+        Create account
+        <span>→</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account?
+      <a href="{% url 'login' %}">Login</a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - DevPath{% endblock %}
+
+{% block content %}
+<style>
+  .auth-wrap {
+    max-width: 600px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+  }
+
+  .auth-top {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: var(--purple-600);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 28px var(--purple-glow);
+  }
+
+  .auth-top h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: .5rem;
+  }
+
+  .auth-top p {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+  }
+
+  .auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+  }
+
+  /* Style Django's form.as_p output */
+  .auth-card p {
+    margin-bottom: 1.2rem;
+  }
+
+  .auth-card label {
+    display: block;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 6px;
+  }
+
+  .auth-card input[type="text"],
+  .auth-card input[type="email"],
+  .auth-card input[type="password"] {
+    width: 100%;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .auth-card input:focus {
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.18);
+  }
+
+  .auth-card .helptext,
+  .auth-card span.helptext {
+    display: block;
+    font-size: .74rem;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+
+  .auth-card .errorlist {
+    list-style: none;
+    padding: 0; margin: 0;
+    margin-top: 5px;
+  }
+
+  .auth-card .errorlist li {
+    color: #f87171;
+    font-size: .78rem;
+  }
+
+  /* Non-field errors (wrong password etc.) */
+  .auth-card .non-field-errors {
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: var(--radius-sm);
+    padding: .75rem 1rem;
+    margin-bottom: 1.25rem;
+    color: #f87171;
+    font-size: .85rem;
+  }
+
+  .btn-login {
+    width: 100%;
+    justify-content: center;
+    padding: 16px;
+    font-size: 1.1rem;
+    margin-top: .5rem;
+    border-radius: var(--radius-sm);
+    background: var(--purple-600);
+    color: #fff;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--purple-glow);
+    transition: background .2s, transform .15s, box-shadow .2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .btn-login:hover {
+    background: var(--purple-500);
+    transform: translateY(-1px);
+    box-shadow: 0 0 32px var(--purple-glow);
+  }
+
+  .btn-login:active { transform: none; }
+
+  .auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: .85rem;
+    color: var(--text-dim);
+  }
+
+  .auth-footer a {
+    color: var(--purple-400);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .auth-footer a:hover { text-decoration: underline; }
+
+  .streak-reminder {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: var(--radius-sm);
+    padding: .85rem 1rem;
+    margin-bottom: 1.75rem;
+    font-size: .82rem;
+    color: #fcd34d;
+  }
+
+  .streak-reminder .s-icon { font-size: 1.2rem; flex-shrink: 0; }
+</style>
+
+<div class="auth-wrap animate-in">
+
+  <div class="auth-top">
+    <div class="auth-logo">⚡</div>
+    <h1>Welcome back</h1>
+    <p>Save your progress and unlock steps.</p>
+  </div>
+
+  <div class="auth-card">
+
+    <div class="streak-reminder">
+      <span class="s-icon">🔥</span>
+      Log in daily to keep your streak alive and earn bonus XP.
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="non-field-errors">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn-login" type="submit">
+        Login
+        <span>→</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      No account?
+      <a href="{% url 'register' %}">Register for free</a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

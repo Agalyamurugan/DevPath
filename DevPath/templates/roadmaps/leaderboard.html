@@ -1,0 +1,700 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard - DevPath{% endblock %}
+{% block bn_board %}active{% endblock %}
+
+{% block content %}
+<style>
+  /* Force full width with highest specificity */
+  body .site-main {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 2rem 1rem 5rem !important;
+    margin: 0 !important;
+  }
+  
+  body .container {
+    max-width: 100% !important;
+    padding: 0 1rem !important;
+    width: 100% !important;
+  }
+  
+  body .main-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  body .content-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* ── Duolingo Style Variables ── */
+  :root {
+    --duo-green: #58cc02;
+    --duo-blue: #1cb0f6;
+    --duo-gold: #ffc800;
+    --duo-purple: #ce82ff;
+    --duo-red: #ff4b4b;
+    --duo-crown: #ffd700;
+  }
+
+  /* ── Header ── */
+  .leaderboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    width: 98%;
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1rem;
+  }
+
+  .leaderboard-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--purple-400) 0%, var(--duo-purple) 50%, var(--purple-600) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(139,92,246,0.3);
+  }
+
+  .leaderboard-header p {
+    color: var(--text-dim);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ── Time Period Selector ── */
+  .period-selector {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .period-btn {
+    padding: 0.5rem 1.5rem;
+    border: 2px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .period-btn:hover {
+    border-color: var(--purple-500);
+    background: rgba(139,92,246,0.1);
+    transform: translateY(-2px);
+  }
+
+  .period-btn.active {
+    background: linear-gradient(135deg, var(--purple-500) 0%, var(--purple-600) 100%);
+    border-color: var(--purple-500);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139,92,246,0.3);
+  }
+
+  /* ── Trophy Animation ── */
+  .trophy-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-10px) rotate(-5deg); }
+    75% { transform: translateY(-10px) rotate(5deg); }
+  }
+
+  /* ── Leaderboard Container ── */
+  .leaderboard-container {
+    width: 98%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .leaderboard-table {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    position: relative;
+  }
+
+  .leaderboard-table::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--duo-gold) 0%, var(--duo-purple) 50%, var(--duo-green) 100%);
+  }
+
+  /* ── Top 3 Podium ── */
+  .top-podium {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 2rem;
+    padding: 3rem 2rem 2rem;
+    background: linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(206,130,255,0.05) 100%);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .podium-user {
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease;
+  }
+
+  .podium-user:hover {
+    transform: translateY(-5px);
+  }
+
+  .podium-user.second {
+    transform: translateY(20px);
+  }
+
+  .podium-user.third {
+    transform: translateY(40px);
+  }
+
+  .podium-crown {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    filter: drop-shadow(0 0 10px rgba(255,215,0,0.6));
+  }
+
+  .podium-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--purple-500) 0%, var(--duo-purple) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 2rem;
+    border: 4px solid var(--bg-card);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  }
+
+  .podium-rank {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+
+  .podium-rank.first { color: var(--duo-gold); }
+  .podium-rank.second { color: #c0c0c0; }
+  .podium-rank.third { color: #cd7f32; }
+
+  .podium-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  .podium-points {
+    font-size: 1.3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--purple-400) 0%, var(--duo-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .podium-medal {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 1rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .podium-medal.first {
+    background: linear-gradient(135deg, var(--duo-gold) 0%, #ffa500 100%);
+    color: #000;
+    box-shadow: 0 0 25px rgba(255,215,0,0.6);
+  }
+
+  .podium-medal.second {
+    background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+    color: #000;
+    box-shadow: 0 0 25px rgba(192,192,192,0.6);
+  }
+
+  .podium-medal.third {
+    background: linear-gradient(135deg, #cd7f32 0%, #8b4513 100%);
+    color: #fff;
+    box-shadow: 0 0 25px rgba(205,127,50,0.6);
+  }
+
+  /* ── Leaderboard Rows ── */
+  .leaderboard-row {
+    display: grid;
+    grid-template-columns: 80px 2fr 1fr 1fr 1fr 1fr 120px;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .leaderboard-row:hover {
+    background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(206,130,255,0.05) 100%);
+    transform: translateX(8px);
+  }
+
+  .leaderboard-row:last-child {
+    border-bottom: none;
+  }
+
+  .leaderboard-header-row {
+    background: linear-gradient(135deg, var(--bg-raised) 0%, rgba(139,92,246,0.15) 100%);
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .leaderboard-header-row:hover {
+    background: linear-gradient(135deg, var(--bg-raised) 0%, rgba(139,92,246,0.15) 100%);
+    transform: none;
+  }
+
+  /* ── Rank Styling ── */
+  .rank-badge {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    font-family: 'JetBrains Mono', monospace;
+    position: relative;
+  }
+
+  .rank-1 {
+    background: linear-gradient(135deg, var(--duo-gold) 0%, #ffa500 100%);
+    color: #000;
+    box-shadow: 0 0 25px rgba(255,215,0,0.6);
+    animation: gold-glow 2s ease-in-out infinite;
+  }
+
+  .rank-2 {
+    background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+    color: #000;
+    box-shadow: 0 0 25px rgba(192,192,192,0.6);
+  }
+
+  .rank-3 {
+    background: linear-gradient(135deg, #cd7f32 0%, #8b4513 100%);
+    color: #fff;
+    box-shadow: 0 0 25px rgba(205,127,50,0.6);
+  }
+
+  .rank-other {
+    background: linear-gradient(135deg, var(--bg-raised) 0%, rgba(139,92,246,0.1) 100%);
+    color: var(--text);
+    border: 2px solid var(--border);
+  }
+
+  @keyframes gold-glow {
+    0%, 100% { 
+      box-shadow: 0 0 25px rgba(255,215,0,0.6);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 35px rgba(255,215,0,0.8);
+      transform: scale(1.05);
+    }
+  }
+
+  /* ── User Info ── */
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-500) 0%, var(--duo-purple) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border: 3px solid var(--bg-card);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .user-details h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    color: var(--text);
+  }
+
+  .user-details p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  /* ── Stats ── */
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 0.2rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .points-value {
+    background: linear-gradient(135deg, var(--purple-400) 0%, var(--duo-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .streak-value {
+    color: var(--duo-gold);
+  }
+
+  .level-badge {
+    background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%);
+    color: #10b981;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid rgba(16,185,129,0.2);
+  }
+
+  .progress-ring {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: conic-gradient(var(--duo-green) var(--progress, 0%), var(--bg-raised) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .progress-ring::before {
+    content: '';
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-card);
+  }
+
+  .progress-text {
+    position: relative;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--duo-green);
+  }
+
+  /* ── Current User Highlight ── */
+  .current-user-row {
+    background: linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(206,130,255,0.08) 100%);
+    border-left: 4px solid var(--purple-500);
+    position: relative;
+  }
+
+  .current-user-row::before {
+    content: 'YOU';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    background: var(--purple-500);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 0 0 8px 8px;
+  }
+
+  .current-user-row:hover {
+    background: linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(206,130,255,0.12) 100%);
+  }
+
+  /* ── Achievement Badges ── */
+  .achievement-badges {
+    display: flex;
+    gap: 0.3rem;
+    justify-content: center;
+  }
+
+  .achievement-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, var(--duo-blue) 0%, var(--duo-purple) 100%);
+    color: white;
+    border: 2px solid var(--bg-card);
+  }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-dim);
+  }
+
+  .empty-state-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  /* ── Animations ── */
+  .animate-in {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .leaderboard-row {
+      grid-template-columns: 60px 1fr 80px 80px 100px;
+    }
+    
+    .stat-item:nth-child(5) {
+      display: none;
+    }
+    
+    .top-podium {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    .podium-user.second,
+    .podium-user.third {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .leaderboard-row {
+      grid-template-columns: 50px 1fr 60px;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+    }
+
+    .rank-badge {
+      width: 35px;
+      height: 35px;
+      font-size: 0.9rem;
+    }
+
+    .user-avatar {
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
+    }
+
+    .stat-item:not(.level-badge) {
+      display: none;
+    }
+
+    .leaderboard-header-row {
+      grid-template-columns: 50px 1fr 60px;
+    }
+    
+    .top-podium {
+      padding: 2rem 1rem;
+    }
+    
+    .podium-avatar {
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+    }
+    
+    .leaderboard-header h1 {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<div class="leaderboard-header animate-in">
+  <div class="trophy-icon">🏆</div>
+  <h1>Leaderboard</h1>
+  <p>Compete with learners worldwide and climb the rankings!</p>
+  
+  <div class="period-selector">
+    <a href="?period=weekly" class="period-btn {% if request.GET.period == 'weekly' %}active{% endif %}">📅 This Week</a>
+    <a href="?period=monthly" class="period-btn {% if request.GET.period == 'monthly' or not request.GET.period %}active{% endif %}">📊 This Month</a>
+    <a href="?period=all" class="period-btn {% if request.GET.period == 'all' %}active{% endif %}">🌟 All Time</a>
+  </div>
+</div>
+
+<div class="leaderboard-container">
+  {% if leaderboard %}
+    <!-- Top 3 Podium -->
+    {% if leaderboard|length >= 3 %}
+      <div class="top-podium">
+        <!-- Second Place -->
+        <div class="podium-user second animate-in" style="animation-delay: 0.1s;">
+          <div class="podium-crown">🥈</div>
+          <div class="podium-avatar">{{ leaderboard.1.user.username|first|upper }}</div>
+          <div class="podium-rank second">2nd</div>
+          <div class="podium-name">{{ leaderboard.1.user.username }}</div>
+          <div class="podium-points">{{ leaderboard.1.total_points }} XP</div>
+          <div class="podium-medal second">2</div>
+        </div>
+        
+        <!-- First Place -->
+        <div class="podium-user first animate-in">
+          <div class="podium-crown">👑</div>
+          <div class="podium-avatar">{{ leaderboard.0.user.username|first|upper }}</div>
+          <div class="podium-rank first">1st</div>
+          <div class="podium-name">{{ leaderboard.0.user.username }}</div>
+          <div class="podium-points">{{ leaderboard.0.total_points }} XP</div>
+          <div class="podium-medal first">1</div>
+        </div>
+        
+        <!-- Third Place -->
+        <div class="podium-user third animate-in" style="animation-delay: 0.2s;">
+          <div class="podium-crown">🥉</div>
+          <div class="podium-avatar">{{ leaderboard.2.user.username|first|upper }}</div>
+          <div class="podium-rank third">3rd</div>
+          <div class="podium-name">{{ leaderboard.2.user.username }}</div>
+          <div class="podium-points">{{ leaderboard.2.total_points }} XP</div>
+          <div class="podium-medal third">3</div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Full Leaderboard Table -->
+    <div class="leaderboard-table">
+      <div class="leaderboard-row leaderboard-header-row">
+        <div>Rank</div>
+        <div>Learner</div>
+        <div>Points</div>
+        <div>Streak</div>
+        <div>Best</div>
+        <div>Progress</div>
+        <div>Level</div>
+      </div>
+      
+      {% for entry in leaderboard %}
+        <div class="leaderboard-row {% if entry.user == request.user %}current-user-row{% endif %} animate-in" style="animation-delay: {{ forloop.counter|add:3 }}00ms;">
+          <div>
+            {% if entry.rank == 1 %}
+              <div class="rank-badge rank-1">1</div>
+            {% elif entry.rank == 2 %}
+              <div class="rank-badge rank-2">2</div>
+            {% elif entry.rank == 3 %}
+              <div class="rank-badge rank-3">3</div>
+            {% else %}
+              <div class="rank-badge rank-other">{{ entry.rank }}</div>
+            {% endif %}
+          </div>
+          
+          <div class="user-info">
+            <div class="user-avatar">
+              {{ entry.user.username|first|upper }}
+            </div>
+            <div class="user-details">
+              <h3>{{ entry.user.username }}</h3>
+              <p>{{ entry.current_role.name|default:"No role selected" }}</p>
+            </div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-value points-value">{{ entry.total_points }}</div>
+            <div class="stat-label">Points</div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-value streak-value">{{ entry.current_streak }}</div>
+            <div class="stat-label">Days</div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-value streak-value">{{ entry.longest_streak }}</div>
+            <div class="stat-label">Best</div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="progress-ring" style="--progress: {{ entry.progress_percentage|default:0 }}%">
+              <div class="progress-text">{{ entry.progress_percentage|default:0 }}%</div>
+            </div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="level-badge">{{ entry.level }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🏆</div>
+      <h2>No leaderboard data available</h2>
+      <p>Start completing lessons and quizzes to see your ranking!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

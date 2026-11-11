@@ -1,0 +1,970 @@
+{% extends 'base.html' %}
+
+{% block title %}Practice Hub - DevPath{% endblock %}
+{% block bn_practice %}active{% endblock %}
+
+{% block content %}
+<style>
+  /* Force full width with highest specificity */
+  body .site-main {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 2rem 1rem 5rem !important;
+    margin: 0 !important;
+  }
+  
+  body .container {
+    max-width: 100% !important;
+    padding: 0 1rem !important;
+    width: 100% !important;
+  }
+  
+  body .main-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  body .content-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* ── Duolingo Style Variables ── */
+  :root {
+    --duo-green: #58cc02;
+    --duo-blue: #1cb0f6;
+    --duo-gold: #ffc800;
+    --duo-purple: #ce82ff;
+    --duo-red: #ff4b4b;
+    --duo-crown: #ffd700;
+  }
+
+  /* ── Header ── */
+  .practice-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    width: 98%;
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1rem;
+  }
+
+  .practice-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--purple-400) 0%, var(--duo-purple) 50%, var(--purple-600) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(139,92,246,0.3);
+  }
+
+  .practice-header p {
+    color: var(--text-dim);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ── Practice Icon Animation ── */
+  .practice-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(139,92,246,0.5));
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-10px) rotate(-5deg); }
+    75% { transform: translateY(-10px) rotate(5deg); }
+  }
+
+  /* ── Stats Overview ── */
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    width: 98%;
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1rem;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--duo-purple) 0%, var(--purple-500) 100%);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+
+  .stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    background: linear-gradient(135deg, var(--purple-400) 0%, var(--duo-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  /* ── Practice Container ── */
+  .practice-container {
+    width: 98%;
+    max-width: none;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* ── Level Sections ── */
+  .level-section {
+    margin-bottom: 3rem;
+  }
+
+  .level-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(206,130,255,0.05) 100%);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .level-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--duo-gold) 0%, var(--duo-purple) 50%, var(--duo-green) 100%);
+  }
+
+  .level-icon {
+    font-size: 3rem;
+    filter: drop-shadow(0 0 10px rgba(139,92,246,0.3));
+  }
+
+  .level-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .level-description {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+  }
+
+  .level-progress {
+    margin-left: auto;
+    text-align: center;
+  }
+
+  .progress-ring {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: conic-gradient(var(--duo-green) var(--progress, 0%), var(--bg-raised) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto 0.5rem;
+  }
+
+  .progress-ring::before {
+    content: '';
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--bg-card);
+  }
+
+  .progress-text {
+    position: relative;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--duo-green);
+  }
+
+  .progress-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  /* ── Quiz Grid ── */
+  .quiz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+  }
+
+  .quiz-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .quiz-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--duo-blue) 0%, var(--duo-purple) 100%);
+  }
+
+  .quiz-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border-color: rgba(139,92,246,0.3);
+  }
+
+  /* ── Quiz Status ── */
+  .quiz-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .status-not-attempted {
+    background: linear-gradient(135deg, rgba(156,163,175,0.15) 0%, rgba(156,163,175,0.05) 100%);
+    color: #9ca3af;
+    border: 2px solid rgba(156,163,175,0.2);
+  }
+
+  .status-attempted {
+    background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.05) 100%);
+    color: #f59e0b;
+    border: 2px solid rgba(245,158,11,0.3);
+  }
+
+  .status-passed {
+    background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%);
+    color: #10b981;
+    border: 2px solid rgba(16,185,129,0.3);
+    animation: success-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes success-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  }
+
+  /* ── Quiz Content ── */
+  .quiz-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .quiz-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+  }
+
+  .quiz-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+  }
+
+  .quiz-description {
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+
+  /* ── Quiz Stats ── */
+  .quiz-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  .quiz-stat {
+    text-align: center;
+    flex: 1;
+  }
+
+  .quiz-stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 0.3rem;
+  }
+
+  .quiz-stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .score-value {
+    background: linear-gradient(135deg, var(--duo-green) 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .attempts-value {
+    background: linear-gradient(135deg, var(--duo-gold) 0%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Action Button ── */
+  .quiz-action {
+    width: 100%;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .quiz-action::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .quiz-action:hover::before {
+    left: 100%;
+  }
+
+  .btn-take-quiz {
+    background: linear-gradient(135deg, var(--purple-500) 0%, var(--purple-600) 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(139,92,246,0.3);
+  }
+
+  .btn-take-quiz:hover {
+    background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139,92,246,0.4);
+  }
+
+  .btn-retake-quiz {
+    background: linear-gradient(135deg, var(--duo-gold) 0%, #f59e0b 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(245,158,11,0.3);
+  }
+
+  .btn-retake-quiz:hover {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(245,158,11,0.4);
+  }
+
+  .btn-view-results {
+    background: linear-gradient(135deg, var(--bg-raised) 0%, rgba(139,92,246,0.1) 100%);
+    color: var(--purple-400);
+    border: 2px solid var(--purple-500);
+  }
+
+  .btn-view-results:hover {
+    background: linear-gradient(135deg, var(--purple-500) 0%, var(--purple-600) 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139,92,246,0.4);
+  }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--text-dim);
+  }
+
+  .empty-state-icon {
+    font-size: 6rem;
+    margin-bottom: 2rem;
+    opacity: 0.5;
+    filter: grayscale(100%);
+  }
+
+  .empty-state h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .empty-state p {
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* ── Animations ── */
+  .animate-in {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── All Quizzes Section ── */
+  .all-quizzes-section {
+    margin-bottom: 2rem;
+  }
+
+  .comprehensive-quiz-link {
+    margin-bottom: 2rem;
+  }
+
+  .comprehensive-quiz-btn {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--duo-purple), #9b59b6);
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(206,130,255,0.3);
+    transition: all 0.3s ease;
+  }
+
+  .comprehensive-quiz-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(206,130,255,0.4);
+  }
+
+  .btn-icon {
+    font-size: 2.5rem;
+    margin-right: 1.5rem;
+  }
+
+  .btn-content {
+    flex: 1;
+  }
+
+  .btn-content h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn-content p {
+    opacity: 0.9;
+    font-size: 0.9rem;
+  }
+
+  .btn-arrow {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(206,130,255,0.05) 100%);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--duo-gold) 0%, var(--duo-purple) 50%, var(--duo-green) 100%);
+  }
+
+  .section-icon {
+    font-size: 3rem;
+    filter: drop-shadow(0 0 10px rgba(139,92,246,0.3));
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .section-description {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+  }
+
+  /* ── Quiz Topics ── */
+  .quiz-topics {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(206,130,255,0.02) 100%);
+    border-radius: 15px;
+    border: 1px solid rgba(139,92,246,0.1);
+  }
+
+  .quiz-topics h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--purple-400);
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .topic-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .topic-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    background: linear-gradient(135deg, var(--duo-purple) 0%, var(--purple-500) 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 8px rgba(139,92,246,0.2);
+    transition: all 0.3s ease;
+  }
+
+  .topic-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139,92,246,0.3);
+  }
+
+  /* ── Placeholder Card ── */
+  .placeholder-card {
+    opacity: 0.8;
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(139,92,246,0.02) 100%);
+    border: 2px dashed rgba(139,92,246,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .placeholder-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--duo-gold) 0%, var(--duo-purple) 50%, var(--duo-green) 100%);
+    opacity: 0.5;
+  }
+
+  .placeholder-content {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .placeholder-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+    filter: grayscale(50%);
+  }
+
+  .placeholder-content h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.8rem;
+  }
+
+  .placeholder-content p {
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .placeholder-topics {
+    margin-top: 1rem;
+  }
+
+  .placeholder-topics h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .placeholder-card .topic-tags {
+    justify-content: center;
+  }
+
+  .placeholder-card .topic-tag {
+    background: linear-gradient(135deg, rgba(156,163,175,0.2) 0%, rgba(156,163,175,0.1) 100%);
+    color: var(--text-dim);
+    border: 1px solid rgba(156,163,175,0.2);
+    box-shadow: none;
+  }
+
+  .placeholder-card .topic-tag:hover {
+    transform: none;
+    box-shadow: none;
+    background: linear-gradient(135deg, rgba(156,163,175,0.3) 0%, rgba(156,163,175,0.15) 100%);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .quiz-grid {
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .level-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+    
+    .level-progress {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .practice-header h1 {
+      font-size: 2.5rem;
+    }
+    
+    .quiz-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .quiz-stats {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .stats-overview {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    
+    .level-header {
+      padding: 1.5rem;
+    }
+    
+    .quiz-card {
+      padding: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-overview {
+      grid-template-columns: 1fr;
+    }
+    
+    .practice-header h1 {
+      font-size: 2rem;
+    }
+    
+    .level-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+<div class="practice-header animate-in">
+  <div class="practice-icon">🧠</div>
+  <h1>Practice Hub</h1>
+  <p>Master your skills with challenging quizzes and track your progress!</p>
+  
+  <!-- Stats Overview -->
+  <div class="stats-overview">
+    <div class="stat-card animate-in" style="animation-delay: 0.1s;">
+      <div class="stat-value">{{ total_quizzes }}</div>
+      <div class="stat-label">Total Quizzes</div>
+    </div>
+    
+    <div class="stat-card animate-in" style="animation-delay: 0.2s;">
+      <div class="stat-value">{{ passed_quizzes }}</div>
+      <div class="stat-label">Passed</div>
+    </div>
+    
+    <div class="stat-card animate-in" style="animation-delay: 0.3s;">
+      <div class="stat-value">{{ current_streak }}</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+    
+    <div class="stat-card animate-in" style="animation-delay: 0.4s;">
+      <div class="stat-value">{{ average_score }}%</div>
+      <div class="stat-label">Avg Score</div>
+    </div>
+  </div>
+</div>
+
+<div class="practice-container">
+  {% if quiz_data %}
+    <div class="all-quizzes-section">
+      <div class="section-header animate-in">
+        <div class="section-icon">📝</div>
+        <div>
+          <h2 class="section-title">All Practice Quizzes</h2>
+          <p class="section-description">Master your skills with comprehensive quizzes covering all aspects of {{ current_role.name }}</p>
+        </div>
+      </div>
+
+      <!-- Comprehensive Practice Quizzes Link -->
+      <div class="comprehensive-quiz-link animate-in" style="animation-delay: 0ms;">
+        <a href="{% url 'practice_quiz_hub' %}" class="comprehensive-quiz-btn">
+          <div class="btn-icon">🎯</div>
+          <div class="btn-content">
+            <h3>Comprehensive Practice Quizzes</h3>
+            <p>5 questions per level • Detailed explanations • Role-specific content</p>
+          </div>
+          <div class="btn-arrow">→</div>
+        </a>
+      </div>
+
+      <div class="quiz-grid">
+        {% for quiz_info in quiz_data %}
+          <div class="quiz-card animate-in" style="animation-delay: {{ forloop.counter0 }}00ms;">
+            {% if quiz_info.passed %}
+              <div class="quiz-status status-passed">
+                <span>Passed</span>
+              </div>
+            {% elif quiz_info.attempted %}
+              <div class="quiz-status status-attempted">
+                <span>Attempted</span>
+              </div>
+            {% else %}
+              <div class="quiz-status status-not-attempted">
+                <span>New</span>
+              </div>
+            {% endif %}
+
+            <h3 class="quiz-title">{{ quiz_info.quiz.title }}</h3>
+            
+            <div class="quiz-meta">
+              <div class="quiz-meta-item">
+                <span>15 min</span>
+              </div>
+              <div class="quiz-meta-item">
+                <span>{{ quiz_info.quiz.passing_score }}% to pass</span>
+              </div>
+              <div class="quiz-meta-item">
+                <span>Level {{ quiz_info.quiz.level }}</span>
+              </div>
+            </div>
+
+            <p class="quiz-description">{{ quiz_info.quiz.description|default:"Challenge yourself with this comprehensive quiz and test your understanding of key concepts." }}</p>
+
+            <!-- Enhanced Topics Section -->
+            {% if quiz_info.quiz.level == '1' %}
+              <div class="quiz-topics">
+                <h4>Topics:</h4>
+                <div class="topic-tags">
+                  <span class="topic-tag">HTML Basics</span>
+                  <span class="topic-tag">CSS Fundamentals</span>
+                  <span class="topic-tag">Web Structure</span>
+                  <span class="topic-tag">Responsive Design</span>
+                </div>
+              </div>
+            {% elif quiz_info.quiz.level == '2' %}
+              <div class="quiz-topics">
+                <h4>Topics:</h4>
+                <div class="topic-tags">
+                  <span class="topic-tag">JavaScript DOM</span>
+                  <span class="topic-tag">Event Handling</span>
+                  <span class="topic-tag">Media Queries</span>
+                  <span class="topic-tag">Mobile First</span>
+                </div>
+              </div>
+            {% elif quiz_info.quiz.level == '3' %}
+              <div class="quiz-topics">
+                <h4>Topics:</h4>
+                <div class="topic-tags">
+                  <span class="topic-tag">React Components</span>
+                  <span class="topic-tag">State Management</span>
+                  <span class="topic-tag">Node.js</span>
+                  <span class="topic-tag">Express.js</span>
+                </div>
+              </div>
+            {% elif quiz_info.quiz.level == '4' %}
+              <div class="quiz-topics">
+                <h4>Topics:</h4>
+                <div class="topic-tags">
+                  <span class="topic-tag">REST APIs</span>
+                  <span class="topic-tag">Database Design</span>
+                  <span class="topic-tag">Authentication</span>
+                  <span class="topic-tag">Backend Architecture</span>
+                </div>
+              </div>
+            {% else %}
+              <div class="quiz-topics">
+                <h4>Topics:</h4>
+                <div class="topic-tags">
+                  <span class="topic-tag">Full Stack</span>
+                  <span class="topic-tag">Deployment</span>
+                  <span class="topic-tag">Performance</span>
+                  <span class="topic-tag">Security</span>
+                </div>
+              </div>
+            {% endif %}
+
+            <div class="quiz-stats">
+              {% if quiz_info.attempted %}
+                <div class="quiz-stat">
+                  <div class="quiz-stat-value score-value">{{ quiz_info.best_score }}%</div>
+                  <div class="quiz-stat-label">Best Score</div>
+                </div>
+                <div class="quiz-stat">
+                  <div class="quiz-stat-value attempts-value">{{ quiz_info.attempts }}</div>
+                  <div class="quiz-stat-label">Attempts</div>
+                </div>
+                <div class="quiz-stat">
+                  <div class="quiz-stat-value">
+                    {% if quiz_info.passed %}
+                      <span style="color: var(--duo-green);">✓</span>
+                    {% else %}
+                      <span style="color: var(--duo-gold);">-</span>
+                    {% endif %}
+                  </div>
+                  <div class="quiz-stat-label">Status</div>
+                </div>
+              {% else %}
+                <div class="quiz-stat">
+                  <div class="quiz-stat-value" style="color: var(--duo-blue);">New</div>
+                  <div class="quiz-stat-label">Ready</div>
+                </div>
+                <div class="quiz-stat">
+                  <div class="quiz-stat-value" style="color: var(--duo-purple);">Points</div>
+                  <div class="quiz-stat-label">Points</div>
+                </div>
+                <div class="quiz-stat">
+                  <div class="quiz-stat-value" style="color: var(--duo-gold);">Reward</div>
+                  <div class="quiz-stat-label">Reward</div>
+                </div>
+              {% endif %}
+            </div>
+
+            {% if quiz_info.passed %}
+              <a href="{% url 'quiz_result' quiz_info.quiz.id %}" class="quiz-action btn-view-results">
+                View Results
+              </a>
+            {% elif quiz_info.attempted %}
+              <a href="{% url 'take_quiz' quiz_info.quiz.id %}" class="quiz-action btn-retake-quiz">
+                Retake Quiz
+              </a>
+            {% else %}
+              <a href="{% url 'take_quiz' quiz_info.quiz.id %}" class="quiz-action btn-take-quiz">
+                Start Quiz
+              </a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">No Quizzes</div>
+      <h2>No Practice Quizzes Available</h2>
+      <p>Practice quizzes for {{ current_role.name }} are being created. Check back soon to start mastering your skills!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

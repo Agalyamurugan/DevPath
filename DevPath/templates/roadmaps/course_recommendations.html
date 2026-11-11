@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block title %}Course Recommendations - {{ step.title }} - DevPath{% endblock %}
+{% block bn_learn %}active{% endblock %}
+
+{% block content %}
+<style>
+  .recommendations-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .recommendations-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .recommendations-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  
+  .recommendations-header p {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+  }
+  
+  .back-to-roadmap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  
+  .back-to-roadmap:hover {
+    background: var(--bg-card);
+    border-color: var(--purple-400);
+    color: var(--purple-400);
+  }
+  
+  .youtube-section {
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, var(--bg-card) 100%);
+    border: 2px solid rgba(255, 0, 0, 0.2);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .youtube-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .youtube-logo {
+    color: #FF0000;
+    font-size: 2rem;
+  }
+  
+  .youtube-description {
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+  }
+  
+  .youtube-channel {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .youtube-channel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+  
+  .channel-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .channel-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF0000, #CC0000);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+  
+  .channel-details h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  
+  .channel-stats {
+    display: flex;
+    gap: 1rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  
+  .channel-description {
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .watch-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: #FF0000;
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+  }
+  
+  .watch-button:hover {
+    background: #CC0000;
+    transform: scale(1.05);
+  }
+  
+  .other-courses {
+    margin-top: 3rem;
+  }
+  
+  .other-courses h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--text);
+  }
+  
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .course-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: all 0.2s;
+  }
+  
+  .course-card:hover {
+    border-color: var(--purple-400);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
+  }
+  
+  .course-platform {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  
+  .course-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  
+  .course-description {
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .course-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  
+  .course-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--purple-400);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  .course-link:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="recommendations-container">
+  <!-- Header -->
+  <div class="recommendations-header">
+    <h1>📚 Course Recommendations</h1>
+    <p>Top learning resources for <strong>{{ step.title }}</strong></p>
+    <a href="{% url 'roadmap' %}" class="back-to-roadmap">
+      ← Back to Roadmap
+    </a>
+  </div>
+
+  <!-- YouTube Channel Recommendation -->
+  {% if youtube_recommendation %}
+  <div class="youtube-section">
+    <div class="youtube-title">
+      <span class="youtube-logo">▶</span>
+      Featured YouTube Channel
+    </div>
+    <div class="youtube-description">
+      We've selected the highest-rated YouTube channel with the most views for this topic
+    </div>
+    
+    <div class="youtube-channel">
+      <div class="channel-info">
+        <div class="channel-avatar">
+          {{ youtube_recommendation.title|slice:":2"|upper }}
+        </div>
+        <div class="channel-details">
+          <h3>{{ youtube_recommendation.title }}</h3>
+          <div class="channel-stats">
+            <div class="stat-item">
+              <span>👁️</span>
+              <span>Millions of views</span>
+            </div>
+            <div class="stat-item">
+              <span>⭐</span>
+              <span>{{ youtube_recommendation.rating|default:"4.8" }}/5.0</span>
+            </div>
+            <div class="stat-item">
+              <span>📺</span>
+              <span>YouTube</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="channel-description">
+        {{ youtube_recommendation.description|default:"High-quality educational content with comprehensive coverage of the topic." }}
+      </div>
+      
+      <a href="{{ youtube_recommendation.url }}" target="_blank" rel="noopener" class="watch-button">
+        <span>▶</span>
+        Watch Now
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Other Course Recommendations -->
+  {% if other_recommendations %}
+  <div class="other-courses">
+    <h2>📖 Additional Learning Resources</h2>
+    <div class="course-grid">
+      {% for course in other_recommendations %}
+      <div class="course-card">
+        <div class="course-platform">{{ course.get_platform_display }}</div>
+        <div class="course-title">{{ course.title }}</div>
+        <div class="course-description">{{ course.description }}</div>
+        <div class="course-meta">
+          <div>
+            {% if course.difficulty_level %}{{ course.difficulty_level }}{% endif %}
+            {% if course.duration %} • {{ course.duration }}{% endif %}
+          </div>
+          <a href="{{ course.url }}" target="_blank" rel="noopener" class="course-link">
+            View Course →
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

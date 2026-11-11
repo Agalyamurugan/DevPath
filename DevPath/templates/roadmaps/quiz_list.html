@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ level }} Level Quiz{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="roadmap-header">
+    <h1>{{ level }} Level Quiz</h1>
+    <p>Test your knowledge and unlock the next level!</p>
+  </div>
+
+  {% if quiz %}
+    <!-- Debug info -->
+    <div style="background: yellow; padding: 10px; margin: 10px; border: 2px solid red;">
+      <p><strong>DEBUG:</strong></p>
+      <p>Quiz Role: "{{ quiz.role.name }}"</p>
+      <p>Quiz Level: "{{ quiz.level }}"</p>
+      <p>Quiz Title: "{{ quiz.title }}"</p>
+      <p>Is Database Admin: {% if 'Database Administrator' in quiz.role.name %}YES{% else %}NO{% endif %}</p>
+    </div>
+    
+    <div class="quiz-container">
+      <div class="quiz-info">
+        <h2>{{ quiz.title }}</h2>
+        <p>{{ quiz.description }}</p>
+        <p><strong>Passing Score:</strong> {{ quiz.passing_score }}%</p>
+      </div>
+      
+      {% if user_quiz %}
+        <div class="quiz-result">
+          <h3>Quiz Completed!</h3>
+          <p>Your Score: {{ user_quiz.score }}%</p>
+          {% if user_quiz.passed %}
+            <p class="success">🎉 Congratulations! You passed and unlocked the next level!</p>
+          {% else %}
+            <p class="fail">❌ You didn't pass. Try again to unlock the next level.</p>
+          {% endif %}
+        </div>
+      {% else %}
+        <!-- Always show Database Administrator quiz for testing -->
+        <form method="post" action="{% url 'take_quiz' quiz.id %}">
+          {% csrf_token %}
+          
+          {% if 'Database Administrator' in quiz.role.name and quiz.level == 'Beginner' %}
+            <div class="quiz-questions">
+              <div class="question-card">
+                <h3>Question 1</h3>
+                <p>What does DBMS stand for?</p>
+                <div class="options">
+                  <label><input type="radio" name="q1" value="A" required> A. Data Backup Management System</label>
+                  <label><input type="radio" name="q1" value="B"> B. Database Management System</label>
+                  <label><input type="radio" name="q1" value="C"> C. Data Base Machine System</label>
+                  <label><input type="radio" name="q1" value="D"> D. Database Monitoring System</label>
+                </div>
+              </div>
+              
+              <div class="question-card">
+                <h3>Question 2</h3>
+                <p>Which language is used to interact with databases?</p>
+                <div class="options">
+                  <label><input type="radio" name="q2" value="A" required> A. HTML</label>
+                  <label><input type="radio" name="q2" value="B"> B. CSS</label>
+                  <label><input type="radio" name="q2" value="C"> C. SQL</label>
+                  <label><input type="radio" name="q2" value="D"> D. Python</label>
+                </div>
+              </div>
+              
+              <div class="question-card">
+                <h3>Question 3</h3>
+                <p>What is a primary key?</p>
+                <div class="options">
+                  <label><input type="radio" name="q3" value="A" required> A. A duplicate value</label>
+                  <label><input type="radio" name="q3" value="B"> B. A unique identifier</label>
+                  <label><input type="radio" name="q3" value="C"> C. A foreign column</label>
+                  <label><input type="radio" name="q3" value="D"> D. A NULL value</label>
+                </div>
+              </div>
+              
+              <div class="question-card">
+                <h3>Question 4</h3>
+                <p>Which command is used to retrieve data?</p>
+                <div class="options">
+                  <label><input type="radio" name="q4" value="A" required> A. INSERT</label>
+                  <label><input type="radio" name="q4" value="B"> B. UPDATE</label>
+                  <label><input type="radio" name="q4" value="C"> C. SELECT</label>
+                  <label><input type="radio" name="q4" value="D"> D. DELETE</label>
+                </div>
+              </div>
+              
+              <div class="question-card">
+                <h3>Question 5</h3>
+                <p>What does NULL mean?</p>
+                <div class="options">
+                  <label><input type="radio" name="q5" value="A" required> A. Zero</label>
+                  <label><input type="radio" name="q5" value="B"> B. Blank space</label>
+                  <label><input type="radio" name="q5" value="C"> C. Unknown value</label>
+                  <label><input type="radio" name="q5" value="D"> D. Default value</label>
+                </div>
+              </div>
+            </div>
+            
+          {% else %}
+            <!-- Default quiz for other roles/levels -->
+            <div class="quiz-questions">
+              <div class="question-card">
+                <h3>Question 1</h3>
+                <p>What is the purpose of this level?</p>
+                <div class="options">
+                  <label><input type="radio" name="question_1" value="learn" required> Learn the fundamentals</label>
+                  <label><input type="radio" name="question_1" value="practice"> Practice skills</label>
+                  <label><input type="radio" name="question_1" value="complete"> Complete tasks</label>
+                </div>
+              </div>
+              
+              <div class="question-card">
+                <h3>Question 2</h3>
+                <p>Have you completed all resources?</p>
+                <div class="options">
+                  <label><input type="radio" name="question_2" value="yes" required> Yes</label>
+                  <label><input type="radio" name="question_2" value="no"> No</label>
+                </div>
+              </div>
+              
+              <div class="question-card">
+                <h3>Question 3</h3>
+                <p>Are you ready for the next level?</p>
+                <div class="options">
+                  <label><input type="radio" name="question_3" value="yes" required> Yes</label>
+                  <label><input type="radio" name="question_3" value="no"> No</label>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+          
+          <button type="submit" class="btn-submit">Submit Quiz</button>
+        </form>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="no-quiz">
+      <p>No quiz available for this level yet.</p>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+.quiz-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.quiz-info {
+  background: var(--bg-raised);
+  padding: 1.5rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.quiz-info h2 {
+  margin-top: 0;
+  color: white;
+}
+
+.quiz-info p {
+  margin-bottom: 0.5rem;
+  color: rgba(255,255,255,0.9);
+}
+
+.quiz-questions {
+  margin-bottom: 2rem;
+}
+
+.question-card {
+  background: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
+.question-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.question-card p {
+  margin-bottom: 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.options label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.options label:hover {
+  border-color: var(--purple-400);
+  background: rgba(139,92,246,0.05);
+}
+
+.options input[type="radio"] {
+  margin: 0;
+}
+
+.btn-submit {
+  background: var(--purple-600);
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: block;
+  margin: 0 auto;
+}
+
+.btn-submit:hover {
+  background: var(--purple-700);
+}
+
+.quiz-result {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.quiz-result h3 {
+  margin-top: 0;
+  color: var(--text);
+}
+
+.success {
+  color: #10b981;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.fail {
+  color: #dc3545;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.no-quiz {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted);
+}
+</style>
+{% endblock %}

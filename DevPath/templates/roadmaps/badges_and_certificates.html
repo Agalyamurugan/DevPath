@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Badges & Certificates - DevPath{% endblock %}
+{% block bn_profile %}active{% endblock %}
+
+{% block content %}
+<style>
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  
+  .page-header p {
+    color: var(--text-dim);
+    font-size: 1rem;
+  }
+  
+  .sections-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .sections-container {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+  
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .section-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  
+  .section-description {
+    color: var(--text-dim);
+    font-size: .9rem;
+  }
+  
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .item-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform .2s, box-shadow .2s;
+  }
+  
+  .item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  }
+  
+  .item-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .item-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+  }
+  
+  .item-description {
+    color: var(--text-dim);
+    font-size: .85rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+  
+  .item-meta {
+    font-size: .75rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  .certificate-id {
+    background: var(--bg-card);
+    padding: .25rem .5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    color: var(--purple-400);
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--muted);
+  }
+  
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: .5;
+  }
+  
+  .role-info {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(139,92,246,0.1);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: var(--radius);
+  }
+  
+  .role-name {
+    font-weight: 700;
+    color: var(--purple-400);
+  }
+</style>
+
+{% if current_role %}
+<div class="role-info">
+  Currently learning: <span class="role-name">{{ current_role.name }}</span>
+</div>
+{% endif %}
+
+<div class="page-header">
+  <h1>Your Achievements</h1>
+  <p>Track your badges and certificates earned through assessments</p>
+</div>
+
+<div class="sections-container">
+  <!-- Badges Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🏅</div>
+      <h2 class="section-title">Badges</h2>
+      <p class="section-description">Recognition for completing assessments</p>
+    </div>
+    
+    {% if badges %}
+      <div class="items-grid">
+        {% for badge in badges %}
+          <div class="item-card">
+            <div class="item-icon">🏅</div>
+            <div class="item-title">{{ badge.name }}</div>
+            <div class="item-description">{{ badge.description }}</div>
+            <div class="item-meta">
+              Earned {{ badge.earned_at|timesince }} ago
+            </div>
+            <div style="margin-top: .5rem; font-size: .8rem; color: var(--muted);">
+              {{ badge.assessment.step.title }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🏅</div>
+        <h3>No Badges Yet</h3>
+        <p>Complete assessments to earn your first badge!</p>
+      </div>
+    {% endif %}
+  </div>
+  
+  <!-- Certificates Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">📜</div>
+      <h2 class="section-title">Certificates</h2>
+      <p class="section-description">Formal recognition of your achievements</p>
+    </div>
+    
+    {% if certificates %}
+      <div class="items-grid">
+        {% for certificate in certificates %}
+          <div class="item-card">
+            <div class="item-icon">📜</div>
+            <div class="item-title">{{ certificate.title }}</div>
+            <div class="item-description">{{ certificate.description }}</div>
+            <div class="certificate-id">
+              ID: {{ certificate.certificate_id }}
+            </div>
+            <div class="item-meta" style="margin-top: .5rem;">
+              Issued {{ certificate.issued_date|date:"M d, Y" }}
+            </div>
+            <div style="margin-top: .5rem; font-size: .8rem; color: var(--muted);">
+              {{ certificate.assessment.step.title }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📜</div>
+        <h3>No Certificates Yet</h3>
+        <p>Pass assessments with certificate options to earn your first certificate!</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div style="text-align: center; margin-top: 3rem;">
+  <a href="{% url 'dashboard' %}" class="btn btn-outline">← Back to Dashboard</a>
+</div>
+
+{% endblock %}

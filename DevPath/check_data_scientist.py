@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+"""
+Check Data Scientist role and quiz setup
+"""
+
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from roadmaps.models import Role, RoadmapStep, LevelQuiz
+
+# Get Data Scientist role and its steps
+role = Role.objects.filter(name__contains='Data Scientist').first()
+if role:
+    print(f'Role: {role.name}')
+    steps = RoadmapStep.objects.filter(role=role).order_by('order')
+    print('Steps:')
+    for step in steps:
+        quiz = LevelQuiz.objects.filter(role=role, level=step.level).first()
+        print(f'  {step.level} - {step.title} -> Quiz: {quiz.title if quiz else "None"}')
+else:
+    print('Data Scientist role not found')

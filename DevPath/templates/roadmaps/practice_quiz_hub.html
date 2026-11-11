@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}Practice Quizzes - {{ role }}{% endblock %}
+
+{% block content %}
+<style>
+  .practice-quiz-hub {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .quiz-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .quiz-header h1 {
+    color: var(--purple-600);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  .quiz-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, var(--purple-100), var(--purple-50));
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 150px;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--purple-600);
+  }
+
+  .stat-label {
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+  }
+
+  .quiz-levels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .quiz-level-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid var(--purple-100);
+  }
+
+  .quiz-level-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(139,92,246,0.2);
+  }
+
+  .level-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--purple-600);
+    margin-bottom: 1rem;
+  }
+
+  .level-description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  .level-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .level-stat {
+    text-align: center;
+  }
+
+  .level-stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--purple-500);
+  }
+
+  .level-stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .start-quiz-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .start-quiz-btn:hover {
+    background: linear-gradient(135deg, var(--purple-700), var(--purple-800));
+    transform: translateY(-2px);
+  }
+
+  .difficulty-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .difficulty-beginner {
+    background: var(--green-100);
+    color: var(--green-600);
+  }
+
+  .difficulty-intermediate {
+    background: var(--yellow-100);
+    color: var(--yellow-600);
+  }
+
+  .difficulty-advanced {
+    background: var(--red-100);
+    color: var(--red-600);
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: var(--gray-100);
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .back-btn:hover {
+    background: var(--gray-200);
+    transform: translateX(-5px);
+  }
+</style>
+
+<div class="practice-quiz-hub">
+  <a href="{% url 'practice_hub' %}" class="back-btn">
+    ← Back to Practice Hub
+  </a>
+
+  <div class="quiz-header">
+    <h1>{{ role }} Practice Quizzes</h1>
+    <p>Test your knowledge with comprehensive quizzes for each skill level</p>
+  </div>
+
+  <div class="quiz-stats">
+    <div class="stat-card">
+      <div class="stat-number">{{ total_questions }}</div>
+      <div class="stat-label">Total Questions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ quiz_levels|length }}</div>
+      <div class="stat-label">Skill Levels</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">5</div>
+      <div class="stat-label">Questions per Quiz</div>
+    </div>
+  </div>
+
+  <div class="quiz-levels">
+    {% for level in quiz_levels %}
+    <div class="quiz-level-card">
+      <div class="difficulty-badge difficulty-{{ level.level|lower }}">
+        {{ level.level }}
+      </div>
+      
+      <h3 class="level-title">{{ level.level }} Quiz</h3>
+      
+      <p class="level-description">{{ level.description }}</p>
+      
+      <div class="level-stats">
+        <div class="level-stat">
+          <div class="level-stat-number">{{ level.question_count }}</div>
+          <div class="level-stat-label">Questions</div>
+        </div>
+        <div class="level-stat">
+          <div class="level-stat-number">60%</div>
+          <div class="level-stat-label">Passing Score</div>
+        </div>
+      </div>
+
+      <a href="{% url 'take_practice_quiz' role level.level %}" class="start-quiz-btn">
+        Start {{ level.level }} Quiz
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1205 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - DevPath{% endblock %}
+
+{% block content %}
+<style>
+  /* ── Enhanced Hero Section ── */
+  .hero {
+    padding: 6rem 0 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(139,92,246,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.1));
+    border: 1px solid rgba(139,92,246,0.3);
+    color: var(--purple-400);
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: float 3s ease-in-out infinite;
+    box-shadow: 0 4px 20px rgba(139,92,246,0.2);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--purple-400) 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: slideInFromTop 0.8s ease-out;
+  }
+
+  .hero p {
+    color: var(--text-dim);
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    animation: slideInFromBottom 0.8s ease-out 0.2s both;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeIn 0.8s ease-out 0.4s both;
+  }
+
+  .btn-primary {
+    padding: 16px 40px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+    color: #fff;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all .3s ease;
+    box-shadow: 0 8px 24px var(--purple-glow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left .5s ease;
+  }
+
+  .btn-primary:hover::before {
+    left: 100%;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px var(--purple-glow);
+  }
+
+  .btn-ghost {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text);
+    border: 2px solid var(--border);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all .3s ease;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--purple-400);
+    color: var(--purple-400);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139,92,246,0.15);
+  }
+
+  /* ── Enhanced Learn More Box ── */
+  .learn-more-box {
+    background: linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(99,102,241,0.08) 50%, rgba(139,92,246,0.12) 100%);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 20px;
+    padding: 3rem;
+    margin: 4rem auto;
+    max-width: 700px;
+    text-align: center;
+    transition: all .4s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    animation: slideInFromBottom 0.8s ease-out 0.6s both;
+  }
+
+  .learn-more-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple-600), var(--purple-400), var(--purple-600));
+    transform: translateX(-100%);
+    transition: transform .4s ease;
+  }
+
+  .learn-more-box:hover::before {
+    transform: translateX(0);
+  }
+
+  .learn-more-box:hover {
+    border-color: rgba(139,92,246,0.5);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(139,92,246,0.2);
+    background: linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(99,102,241,0.1) 50%, rgba(139,92,246,0.15) 100%);
+  }
+
+  .learn-more-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--purple-400);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .learn-more-box h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+    color: var(--text);
+    background: linear-gradient(135deg, var(--text), var(--purple-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .learn-more-box p {
+    color: var(--text-dim);
+    font-size: 1rem;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ── Enhanced Modal Styles ── */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  .modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    max-width: 900px;
+    max-height: 85vh;
+    width: 95%;
+    overflow: hidden;
+    position: relative;
+    animation: slideUp 0.4s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .modal-header {
+    padding: 2.5rem 2.5rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, var(--bg-card), rgba(139,92,246,0.05));
+    z-index: 10;
+  }
+
+  .modal-header h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text);
+    background: linear-gradient(135deg, var(--text), var(--purple-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--border);
+    font-size: 1.5rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .modal-close:hover {
+    background: rgba(255,255,255,0.2);
+    color: var(--text);
+    transform: rotate(90deg);
+    border-color: var(--purple-400);
+  }
+
+  .modal-body {
+    padding: 2.5rem;
+    max-height: calc(85vh - 120px);
+    overflow-y: auto;
+  }
+
+  .modal-body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .modal-body::-webkit-scrollbar-track {
+    background: var(--bg-raised);
+    border-radius: 4px;
+  }
+
+  .modal-body::-webkit-scrollbar-thumb {
+    background: var(--purple-400);
+    border-radius: 4px;
+  }
+
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+
+  .role-item {
+    background: linear-gradient(135deg, var(--bg-raised), rgba(139,92,246,0.05));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all .3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .role-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--purple-600), var(--purple-400));
+    transform: scaleX(0);
+    transition: transform .3s ease;
+  }
+
+  .role-item:hover::before {
+    transform: scaleX(1);
+  }
+
+  .role-item:hover {
+    border-color: rgba(139,92,246,0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(139,92,246,0.15);
+    background: linear-gradient(135deg, var(--bg-raised), rgba(139,92,246,0.08));
+  }
+
+  .role-item h4 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--purple-400);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .role-item .role-description {
+    color: var(--text-dim);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .role-item .role-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+
+  .skill-tag {
+    background: linear-gradient(135deg, var(--bg-card), rgba(139,92,246,0.1));
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--purple-400);
+    transition: all .2s ease;
+  }
+
+  .skill-tag:hover {
+    background: rgba(139,92,246,0.15);
+    transform: scale(1.05);
+    border-color: rgba(139,92,246,0.4);
+  }
+
+  /* ── Enhanced Animations ── */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slideInFromTop {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slideInFromBottom {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  /* ── Responsive Design ── */
+  @media (max-width: 768px) {
+    .hero {
+      padding: 4rem 0 2rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 8vw, 3rem);
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+    }
+
+    .learn-more-box {
+      margin: 3rem 1rem;
+      padding: 2rem;
+    }
+
+    .modal-content {
+      width: 98%;
+      max-height: 90vh;
+    }
+
+    .modal-header,
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .role-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .role-item {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<!-- Enhanced Hero Section -->
+<div class="hero animate-in">
+  <div class="hero-content">
+    <div class="hero-badge">Start Your Journey</div>
+    <h1>
+      Master Tech Skills with<br>
+      <span class="highlight">Structured Learning Paths</span>
+    </h1>
+    <p>
+      Choose your career path, follow expert-curated roadmaps, and progress from beginner to advanced. Transform your future with structured learning.
+    </p>
+
+    {% if not user.is_authenticated %}
+      <div class="hero-btns">
+        <a class="btn-primary" href="{% url 'register' %}">
+          <span>Start Learning</span>
+          <span>→</span>
+        </a>
+        <a class="btn-ghost" href="{% url 'login' %}">
+          <span>Sign In</span>
+        </a>
+      </div>
+    {% else %}
+      <div class="hero-btns">
+        <a class="btn-primary" href="{% url 'roadmap' %}">
+          <span>Continue Learning</span>
+          <span>→</span>
+        </a>
+        <a class="btn-ghost" href="{% url 'dashboard' %}">
+          <span>Dashboard</span>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Enhanced Learn More Box -->
+<div class="learn-more-box animate-in delay-1" onclick="openModal()">
+  <div class="learn-more-icon">Learn</div>
+  <h3>Explore Career Paths</h3>
+  <p>Discover detailed descriptions of 15+ tech careers in simple, easy-to-understand language. Find the perfect path for your journey.</p>
+</div>
+
+<!-- Enhanced Modal -->
+<div id="rolesModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Tech Career Paths Explained</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="role-grid">
+        <div class="role-item">
+          <h4>🌐 Full Stack Developer</h4>
+          <div class="role-description">
+            Build complete web applications from start to finish. You'll work on both user-facing interfaces and behind-the-scenes systems, making you a versatile developer capable of handling entire projects independently.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">HTML/CSS</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">Node.js</span>
+            <span class="skill-tag">Databases</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>Frontend Developer</h4>
+          <div class="role-description">
+            Create beautiful, interactive user interfaces for websites and applications. You'll transform designs into functional websites, ensure perfect display across all devices, and craft smooth user experiences.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">HTML/CSS</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">UI/UX Design</span>
+            <span class="skill-tag">Responsive Design</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>⚙️ Backend Developer</h4>
+          <div class="role-description">
+            Build the powerful server-side systems that power modern applications. You'll work with databases, create APIs, handle user authentication, and ensure everything runs smoothly behind the scenes.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">Node.js</span>
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Databases</span>
+            <span class="skill-tag">API Development</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>🐍 Python Developer</h4>
+          <div class="role-description">
+            Leverage Python's versatility to build web applications, automate tasks, analyze data, and create innovative software solutions. Python's simplicity and power make it perfect for developers at all levels.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Django</span>
+            <span class="skill-tag">Flask</span>
+            <span class="skill-tag">Data Analysis</span>
+            <span class="skill-tag">Automation</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>🗄️ Database Administrator</h4>
+          <div class="role-description">
+            Manage and optimize critical data infrastructure for organizations. You'll design efficient databases, ensure data security and performance, and help teams access and utilize data effectively.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">SQL</span>
+            <span class="skill-tag">Database Design</span>
+            <span class="skill-tag">Data Security</span>
+            <span class="skill-tag">Performance Tuning</span>
+            <span class="skill-tag">Backup Systems</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>📊 Data Analyst</h4>
+          <div class="role-description">
+            Transform raw data into actionable business insights. You'll collect, clean, and analyze data to identify trends and patterns, then create compelling visualizations and reports to guide decision-making.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Excel</span>
+            <span class="skill-tag">SQL</span>
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Statistics</span>
+            <span class="skill-tag">Data Visualization</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>🧠 Data Scientist</h4>
+          <div class="role-description">
+            Apply advanced mathematics, statistics, and programming to extract deep insights from data and build predictive models. You'll work with machine learning algorithms to solve complex business challenges.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Machine Learning</span>
+            <span class="skill-tag">Statistics</span>
+            <span class="skill-tag">Data Analysis</span>
+            <span class="skill-tag">Algorithms</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>☁️ DevOps Engineer</h4>
+          <div class="role-description">
+            Bridge the gap between development and operations by automating processes and streamlining deployments. You'll manage cloud infrastructure, implement CI/CD pipelines, and ensure reliable software delivery.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Cloud Services</span>
+            <span class="skill-tag">Automation</span>
+            <span class="skill-tag">Linux</span>
+            <span class="skill-tag">Docker</span>
+            <span class="skill-tag">CI/CD</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>🔒 Cybersecurity Analyst</h4>
+          <div class="role-description">
+            Protect organizations from digital threats and cyber attacks. You'll monitor systems for vulnerabilities, investigate security breaches, and implement robust security measures to safeguard sensitive data.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Network Security</span>
+            <span class="skill-tag">Risk Assessment</span>
+            <span class="skill-tag">Security Tools</span>
+            <span class="skill-tag">Incident Response</span>
+            <span class="skill-tag">Compliance</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>UI/UX Designer</h4>
+          <div class="role-description">
+            Create intuitive and beautiful user experiences for digital products. You'll conduct user research, design wireframes and prototypes, and ensure products are both functional and delightful to use.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">User Research</span>
+            <span class="skill-tag">Wireframing</span>
+            <span class="skill-tag">Prototyping</span>
+            <span class="skill-tag">Design Tools</span>
+            <span class="skill-tag">Usability Testing</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>🎮 Game Developer</h4>
+          <div class="role-description">
+            Create immersive gaming experiences and interactive entertainment. You'll program game mechanics, develop graphics and physics systems, and build engaging gameplay that captivates players.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Game Engines</span>
+            <span class="skill-tag">C++/C#</span>
+            <span class="skill-tag">Graphics Programming</span>
+            <span class="skill-tag">Game Design</span>
+            <span class="skill-tag">Physics Simulation</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>💬 Technical Support</h4>
+          <div class="role-description">
+            Help users overcome technical challenges and make the most of technology. You'll diagnose issues, provide solutions, and ensure customers have positive experiences with software and hardware products.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Troubleshooting</span>
+            <span class="skill-tag">Customer Service</span>
+            <span class="skill-tag">Technical Knowledge</span>
+            <span class="skill-tag">Communication</span>
+            <span class="skill-tag">Problem Solving</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>🖥️ System Administrator</h4>
+          <div class="role-description">
+            Manage and maintain critical IT infrastructure for organizations. You'll install software, maintain servers, manage networks, and ensure all systems run reliably and efficiently.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Linux/Windows</span>
+            <span class="skill-tag">Networking</span>
+            <span class="skill-tag">System Management</span>
+            <span class="skill-tag">Security</span>
+            <span class="skill-tag">Troubleshooting</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>🔍 QA Engineer</h4>
+          <div class="role-description">
+            Ensure software quality and reliability through comprehensive testing. You'll identify bugs, test features thoroughly, and work with development teams to deliver polished, high-quality software products.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Testing Methods</span>
+            <span class="skill-tag">Bug Tracking</span>
+            <span class="skill-tag">Test Automation</span>
+            <span class="skill-tag">Quality Standards</span>
+            <span class="skill-tag">Documentation</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>🌐 Network Engineer</h4>
+          <div class="role-description">
+            Design and maintain the network infrastructure that powers modern organizations. You'll configure routers and switches, optimize network performance, and ensure reliable connectivity across systems.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Network Protocols</span>
+            <span class="skill-tag">Routing/Switching</span>
+            <span class="skill-tag">Network Security</span>
+            <span class="skill-tag">Troubleshooting</span>
+            <span class="skill-tag">Network Design</span>
+          </div>
+        </div>
+
+        <div class="role-item">
+          <h4>💻 IT Support Specialist</h4>
+          <div class="role-description">
+            Provide essential technical support to keep organizations running smoothly. You'll assist with hardware and software issues, manage user accounts, and solve everyday technical problems.
+          </div>
+          <div class="role-skills">
+            <span class="skill-tag">Hardware Support</span>
+            <span class="skill-tag">Software Support</span>
+            <span class="skill-tag">Customer Service</span>
+            <span class="skill-tag">Problem Solving</span>
+            <span class="skill-tag">Technical Skills</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openModal() {
+    const modal = document.getElementById('rolesModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Add entrance animation to role items
+    const roleItems = document.querySelectorAll('.role-item');
+    roleItems.forEach((item, index) => {
+      item.style.opacity = '0';
+      item.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        item.style.transition = 'all 0.5s ease';
+        item.style.opacity = '1';
+        item.style.transform = 'translateY(0)';
+      }, index * 100);
+    });
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('rolesModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+  // Close modal when clicking outside
+  window.onclick = function(event) {
+    const modal = document.getElementById('rolesModal');
+    if (event.target == modal) {
+      closeModal();
+    }
+  }
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      closeModal();
+    }
+  });
+
+  // Add parallax effect to hero section
+  window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const hero = document.querySelector('.hero');
+    if (hero) {
+      hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+    }
+  });
+</script>
+
+<!-- Chatbot Widget -->
+<div id="chatbot-widget" class="chatbot-widget">
+  <div class="chatbot-header">
+    <div class="chatbot-avatar">🤖</div>
+    <div class="chatbot-title">
+      <h3>Career Assistant</h3>
+      <span>Ask me about tech roles!</span>
+    </div>
+    <button class="chatbot-toggle" onclick="closeChatbot()">X</button>
+  </div>
+  
+  <div class="chatbot-messages" id="chatbot-messages">
+    <div class="message bot-message">
+      👋 Hello! I'm your Career Assistant Bot! I can help you find the perfect tech role and answer questions about different career paths. What would you like to know?
+    </div>
+  </div>
+  
+  <div class="chatbot-input">
+    <input type="text" id="chatbot-input" placeholder="Ask about roles, skills, salaries..." />
+    <button onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<style>
+/* Chatbot Styles */
+.chatbot-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 500px;
+  height: 650px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 10000;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid var(--purple-200);
+}
+
+.chatbot-widget.open {
+  display: flex;
+}
+
+.chatbot-header {
+  background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+  color: white;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chatbot-avatar {
+  font-size: 24px;
+}
+
+.chatbot-title h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.chatbot-title span {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.chatbot-toggle {
+  margin-left: auto;
+  background: rgba(255,255,255,0.9);
+  border: 2px solid white;
+  color: #7c3aed;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.chatbot-toggle:hover {
+  background: white;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.chatbot-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #f8f9fa;
+}
+
+.message {
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 18px;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.bot-message {
+  background: var(--purple-100);
+  color: #333;
+  align-self: flex-start;
+}
+
+.user-message {
+  background: var(--purple-600);
+  color: white;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.chatbot-input {
+  padding: 15px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+}
+
+.chatbot-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+
+.chatbot-input button {
+  background: var(--purple-600);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.chatbot-input button:hover {
+  background: var(--purple-700);
+}
+
+/* Chatbot Toggle Button */
+.chatbot-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(139,92,246,0.3);
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+
+.chatbot-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(139,92,246,0.4);
+}
+
+/* Typing indicator */
+.typing-indicator {
+  display: none;
+  padding: 10px 15px;
+  background: var(--purple-100);
+  border-radius: 18px;
+  max-width: 80%;
+}
+
+.typing-indicator span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--purple-400);
+  margin: 0 2px;
+  animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+</style>
+
+<script>
+// Chatbot functionality
+let chatbotOpen = false;
+let lastTopic = ''; // Track the last topic for follow-up questions
+
+function toggleChatbot() {
+  const widget = document.getElementById('chatbot-widget');
+  const fab = document.querySelector('.chatbot-fab');
+  
+  chatbotOpen = !chatbotOpen;
+  
+  if (chatbotOpen) {
+    widget.classList.add('open');
+    if (fab) fab.style.display = 'none';
+    document.getElementById('chatbot-input').focus();
+  } else {
+    widget.classList.remove('open');
+    if (fab) fab.style.display = 'block';
+  }
+}
+
+function closeChatbot() {
+  const widget = document.getElementById('chatbot-widget');
+  const fab = document.querySelector('.chatbot-fab');
+  
+  chatbotOpen = false;
+  widget.classList.remove('open');
+  if (fab) fab.style.display = 'block';
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatbot-input');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  // Add user message
+  addMessage(message, 'user');
+  input.value = '';
+  
+  // Show typing indicator
+  showTypingIndicator();
+  
+  // Send to server
+  fetch('/chatbot/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: `message=${encodeURIComponent(message)}`
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    hideTypingIndicator();
+    if (data.response) {
+      addMessage(data.response, 'bot');
+    } else if (data.error) {
+      addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+    }
+  })
+  .catch(error => {
+    hideTypingIndicator();
+    console.error('Chatbot error:', error);
+    // Fallback response if API fails
+    addFallbackResponse(message);
+  });
+}
+
+function addFallbackResponse(userMessage) {
+  const lowerMessage = userMessage.toLowerCase();
+  let response = '';
+  
+  // Handle follow-up responses (yes/no)
+  if (lowerMessage.includes('yes') || lowerMessage.includes('sure') || lowerMessage.includes('okay') || lowerMessage.includes('ok')) {
+    if (lastTopic.includes('skills')) {
+      response = 'Great! Here are the key skills you\'ll need: For Backend: Python, Java, Node.js, SQL, APIs. For Frontend: HTML, CSS, JavaScript, React. For Data Science: Python, Machine Learning, Statistics. Which area interests you most?';
+    } else if (lastTopic.includes('salary')) {
+      response = 'Here are the salary ranges: Frontend Developer ($60k-$120k), Backend Developer ($70k-$140k), Full Stack Developer ($80k-$150k), Data Scientist ($90k-$180k), DevOps Engineer ($90k-$160k). Would you like details about any specific role?';
+    } else if (lastTopic.includes('backend')) {
+      response = 'Perfect! Backend developers work with server-side technologies like Python, Java, Node.js, databases (SQL/NoSQL), and APIs. You\'ll build the engine that powers web applications. Salary range: $70k-$140k. Want to know about required skills?';
+    } else if (lastTopic.includes('frontend')) {
+      response = 'Great choice! Frontend developers create user interfaces using HTML, CSS, JavaScript, and frameworks like React or Vue.js. You\'ll build what users see and interact with. Salary range: $60k-$120k. Interested in learning about the skills needed?';
+    } else if (lastTopic.includes('data science')) {
+      response = 'Excellent! Data scientists use Python, machine learning, statistics, and data visualization to extract insights from data. You\'ll work with tools like Pandas, TensorFlow, and Scikit-learn. Salary range: $90k-$180k. Want to know about the learning path?';
+    } else {
+      response = 'Great! I\'m here to help you explore tech careers. You can ask me about specific roles (frontend, backend, data science), required skills, salary information, or career paths. What would you like to know?';
+    }
+  } else if (lowerMessage.includes('no') || lowerMessage.includes('no thanks') || lowerMessage.includes('not really')) {
+    response = 'No problem! Is there another tech role you\'d like to explore, or do you have questions about skills, salaries, or career paths?';
+  } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+    response = 'Hello! I\'m here to help you explore tech careers. What would you like to know about?';
+  } else if (lowerMessage.includes('frontend') || lowerMessage.includes('web') || lowerMessage.includes('design')) {
+    lastTopic = 'frontend';
+    response = 'Frontend development is great for creative people! You\'ll work with HTML, CSS, JavaScript, and frameworks like React to build user interfaces. Salary range: $60k-$120k. Would you like to know about the skills needed?';
+  } else if (lowerMessage.includes('backend') || lowerMessage.includes('server') || lowerMessage.includes('back end') || lowerMessage.includes('back-end')) {
+    lastTopic = 'backend';
+    response = 'Backend development focuses on server-side logic! You\'ll work with Python, Java, Node.js, databases, and APIs to build the engine that powers web applications. Salary range: $70k-$140k. Interested in learning about the skills?';
+  } else if (lowerMessage.includes('data') || lowerMessage.includes('analytics') || lowerMessage.includes('data science')) {
+    lastTopic = 'data science';
+    response = 'Data science is perfect for analytical minds! You\'ll use Python, machine learning, and statistics to analyze data and build predictive models. Salary range: $90k-$180k. Want to explore the learning path?';
+  } else if (lowerMessage.includes('salary') || lowerMessage.includes('how much') || lowerMessage.includes('pay')) {
+    lastTopic = 'salary';
+    response = 'Tech salaries vary by role: Frontend ($60k-$120k), Backend ($70k-$140k), Full Stack ($80k-$150k), Data Science ($90k-$180k), DevOps ($90k-$160k). Which role interests you most?';
+  } else if (lowerMessage.includes('skills') || lowerMessage.includes('learn') || lowerMessage.includes('what do i need')) {
+    lastTopic = 'skills';
+    response = 'Key tech skills include: Frontend (HTML, CSS, JavaScript, React), Backend (Python, Java, Node.js, SQL), Data Science (Python, ML, Statistics). What area interests you most?';
+  } else if (lowerMessage.includes('recommend') || lowerMessage.includes('suggest') || lowerMessage.includes('what role')) {
+    response = 'I can recommend roles based on your interests! Tell me if you prefer: creative work (Frontend), analytical work (Data Science), system work (Backend/DevOps), or working with data (Database/Analytics).';
+  } else if (lowerMessage.includes('what is') || lowerMessage.includes('tell me about')) {
+    // Extract the topic after "what is" or "tell me about"
+    let topic = '';
+    if (lowerMessage.includes('what is')) {
+      topic = lowerMessage.replace('what is', '').trim();
+    } else if (lowerMessage.includes('tell me about')) {
+      topic = lowerMessage.replace('tell me about', '').trim();
+    }
+    
+    if (topic.includes('frontend')) {
+      lastTopic = 'frontend';
+      response = 'Frontend development is all about creating user interfaces! You\'ll use HTML, CSS, JavaScript, and frameworks like React or Vue.js to build what users see and interact with. Salary: $60k-$120k. Want to know about skills?';
+    } else if (topic.includes('backend') || topic.includes('back end') || topic.includes('back-end')) {
+      lastTopic = 'backend';
+      response = 'Backend development is the engine of web applications! You\'ll work with server-side languages like Python, Java, or Node.js, manage databases, and create APIs. Salary: $70k-$140k. Interested in skills?';
+    } else if (topic.includes('data science') || topic.includes('data')) {
+      lastTopic = 'data science';
+      response = 'Data science combines statistics, programming, and domain knowledge to extract insights from data. You\'ll use Python, machine learning, and data visualization tools. Salary: $90k-$180k. Want to learn more?';
+    } else if (topic.includes('devops')) {
+      lastTopic = 'devops';
+      response = 'DevOps bridges development and operations! You\'ll automate deployments, manage cloud infrastructure, and ensure reliable software delivery. Skills: Docker, Kubernetes, CI/CD. Salary: $90k-$160k. Interested in learning more?';
+    } else if (topic.includes('full stack')) {
+      lastTopic = 'full stack';
+      response = 'Full stack developers work on both frontend and backend! You\'ll handle everything from user interfaces to server logic and databases. Salary: $80k-$150k. Want to know about the skills?';
+    } else {
+      response = 'I can help you learn about tech careers! Ask me about specific roles like frontend, backend, data science, full stack, or DevOps development.';
+    }
+  } else {
+    response = 'I can help you explore tech careers! Ask me about specific roles (frontend, backend, data science), skills, salaries, or career paths. What would you like to know?';
+  }
+  
+  addMessage(response, 'bot');
+}
+
+function addMessage(text, sender) {
+  const messagesDiv = document.getElementById('chatbot-messages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${sender}-message`;
+  messageDiv.textContent = text;
+  messagesDiv.appendChild(messageDiv);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function showTypingIndicator() {
+  const messagesDiv = document.getElementById('chatbot-messages');
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'typing-indicator';
+  typingDiv.id = 'typing-indicator';
+  typingDiv.innerHTML = '<span></span><span></span><span></span>';
+  messagesDiv.appendChild(typingDiv);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  const typingDiv = document.getElementById('typing-indicator');
+  if (typingDiv) {
+    typingDiv.remove();
+  }
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const chatInput = document.getElementById('chatbot-input');
+  if (chatInput) {
+    chatInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  }
+});
+
+// Create FAB button if not exists
+if (!document.querySelector('.chatbot-fab')) {
+  const fab = document.createElement('button');
+  fab.className = 'chatbot-fab';
+  fab.innerHTML = '&#x1F4AC;';
+  fab.innerHTML = '💬';
+  fab.onclick = toggleChatbot;
+  fab.title = 'Chat with Career Assistant';
+  document.body.appendChild(fab);
+}
+</script>
+
+{% endblock %}

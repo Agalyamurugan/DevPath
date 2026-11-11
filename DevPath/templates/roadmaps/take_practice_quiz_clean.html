@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ level }} {{ role }} Quiz{% endblock %}
+
+{% block content %}
+<style>
+  .quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .quiz-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .quiz-header h1 {
+    color: var(--purple-600);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .quiz-progress {
+    background: var(--gray-200);
+    height: 8px;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .quiz-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--purple-500), var(--purple-600));
+    transition: width 0.3s ease;
+  }
+
+  .quiz-form {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .question-card {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border: 2px solid var(--purple-100);
+    border-radius: 12px;
+    background: var(--purple-50);
+  }
+
+  .question-number {
+    display: inline-block;
+    background: var(--purple-600);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .question-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+  }
+
+  .options-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .option-label {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .option-label:hover {
+    border-color: var(--purple-300);
+    background: var(--purple-50);
+  }
+
+  .option-label input[type="radio"] {
+    margin-right: 1rem;
+    transform: scale(1.2);
+  }
+
+  .option-label input[type="radio"]:checked + .option-text {
+    color: var(--purple-600);
+    font-weight: 600;
+  }
+
+  .option-label:has(input[type="radio"]:checked) {
+    border-color: var(--purple-600);
+    background: var(--purple-100);
+  }
+
+  .option-text {
+    flex: 1;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .quiz-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--gray-200);
+  }
+
+  .quiz-info {
+    color: var(--text-secondary);
+  }
+
+  .submit-btn {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .submit-btn:hover {
+    background: linear-gradient(135deg, var(--purple-700), var(--purple-800));
+    transform: translateY(-2px);
+  }
+
+  .submit-btn:disabled {
+    background: var(--gray-300);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: var(--gray-100);
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .back-btn:hover {
+    background: var(--gray-200);
+    transform: translateX(-5px);
+  }
+
+  .timer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--purple-600);
+    font-weight: 600;
+  }
+
+  .difficulty-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .difficulty-beginner {
+    background: var(--green-100);
+    color: var(--green-600);
+  }
+
+  .difficulty-intermediate {
+    background: var(--yellow-100);
+    color: var(--yellow-600);
+  }
+
+  .difficulty-advanced {
+    background: var(--red-100);
+    color: var(--red-600);
+  }
+</style>
+
+<div class="quiz-container">
+  <a href="{% url 'practice_quiz_hub' %}" class="back-btn">
+    ← Back to Quiz Hub
+  </a>
+
+  <div class="quiz-header">
+    <div class="difficulty-badge difficulty-{{ level|lower }}">
+      {{ level }}
+    </div>
+    <h1>{{ role }} {{ level }} Quiz</h1>
+    <p>Test your {{ level|lower }} knowledge in {{ role }}</p>
+  </div>
+
+  <div class="quiz-progress">
+    <div class="quiz-progress-bar" style="width: 0%"></div>
+  </div>
+
+  <form method="post" action="{% url 'submit_practice_quiz' %}" class="quiz-form" id="quizForm">
+    {% csrf_token %}
+    
+    {% for question in questions %}
+    <div class="question-card">
+      <span class="question-number">Question {{ forloop.counter }}</span>
+      <h3 class="question-text">{{ question.question }}</h3>
+      
+      <div class="options-list">
+        {% for option in question.options %}
+        <label class="option-label">
+          <input type="radio" name="question_{{ forloop.parentloop.counter0 }}" 
+                 value="{{ forloop.counter0 }}" required>
+          <span class="option-text">{{ option }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="quiz-actions">
+      <div class="quiz-info">
+        <div class="timer">
+          ⏱️ <span id="timer">00:00</span>
+        </div>
+        <div>{{ total_questions }} Questions</div>
+      </div>
+      
+      <button type="submit" class="submit-btn" id="submitBtn">
+        Submit Quiz
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Timer functionality
+  let seconds = 0;
+  const timerElement = document.getElementById('timer');
+  
+  function updateTimer() {
+    seconds++;
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    timerElement.textContent = minutes.toString().padStart(2, '0') + ':' + secs.toString().padStart(2, '0');
+  }
+  
+  setInterval(updateTimer, 1000);
+  
+  // Progress bar update
+  const form = document.getElementById('quizForm');
+  const progressBar = document.querySelector('.quiz-progress-bar');
+  const totalQuestions = {{ total_questions }};
+  
+  function updateProgress() {
+    const answered = form.querySelectorAll('input[type="radio"]:checked').length;
+    const progress = (answered / totalQuestions) * 100;
+    progressBar.style.width = progress + '%';
+  }
+  
+  // Listen for answer changes
+  form.addEventListener('change', updateProgress);
+  
+  // Form submission validation
+  form.addEventListener('submit', function(e) {
+    const answered = form.querySelectorAll('input[type="radio"]:checked').length;
+    if (answered < totalQuestions) {
+      e.preventDefault();
+      if (confirm('You have only answered ' + answered + ' out of ' + totalQuestions + ' questions. Do you want to submit anyway?')) {
+        form.submit();
+      }
+    }
+  });
+</script>
+{% endblock %}
